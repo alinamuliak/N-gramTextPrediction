@@ -15,6 +15,7 @@ std::string preprocess(const std::string& file_name) {
     auto text = dynamic_cast<std::ostringstream&>(
             std::ostringstream{} << file.rdbuf()).str();
     // todo: read as utf-8 without creepy symbols
+    // also maybe there is more efficient way to remove punctuation
     text.erase(std::remove_if(text.begin(), text.end(), ispunct), text.end());
     // todo: add cleaning from redundant whitespaces
     boost::replace_all(text, "\n", " </s> <s> ");
@@ -22,9 +23,3 @@ std::string preprocess(const std::string& file_name) {
     return text;
 }
 
-
-int main() {
-    auto text = preprocess("data/alice.txt");
-    std::cout << text << std::endl;
-    return 0;
-}

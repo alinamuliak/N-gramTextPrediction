@@ -8,7 +8,7 @@ include_directories(.)
 
 add_executable(${PROJECT_NAME}
         preprocess_text.cpp
-        preprocess_text.h)
+        preprocess_text.h main.cpp)
 #
 #FIND_PACKAGE( Boost 1.77.0 COMPONENTS algorithm string REQUIRED )
 #target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIR})
