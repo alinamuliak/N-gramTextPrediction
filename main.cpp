@@ -20,10 +20,11 @@ std::string get_first_n_words(int n, const std::string& text) {
 }
 
 // todo: тут ймовірно потрібно ще чистити від таких n-gram як (</s>, <s>)
+//      + потрібно розібратися, чи треба додавати N разів <s>
 int main() {
     int N = 3;
-//    auto text = preprocess("data/alice.txt");
-    std::string text = "<s> I am singing </s> <s> I am cooking </s> <s> I am cooking </s>";
+    auto text = preprocess("data/alice.txt");
+//    std::string text = "<s> I am singing </s> <s> I am cooking </s> <s> I am cooking </s>";
     std::unordered_map<std::string, double> ngrams_counts;
     std::unordered_map<std::string, double> nminus1_grams_counts;
     std::unordered_map<std::string, std::set<std::string>> after;
@@ -66,16 +67,19 @@ int main() {
 //        std::cout << "P(" << e.first << ") = " << e.second << std::endl;
 //    }
 
-    std::cout << "prediction after 'I am':" << std::endl;
+//    ----------- e x a m p l e ----------
+    std::string past = "Hold your";
+    std::cout << "Hold your:" << std::endl;
     std::string next_word;
     double max_prob = 0;
-    for (const auto& b: after["I am"]) {
-        if (probabilities["I am " + b] > max_prob) {
-            max_prob = probabilities["I am " + b];
+    for (const auto& b: after[past]) {
+        if (probabilities[past + " " + b] > max_prob) {
+            max_prob = probabilities[past + " " + b];
             next_word = b;
         }
     }
-    std::cout << next_word << std::endl;
+    std::cout << '\t' << next_word << std::endl;
     return 0;
 }
 
+// todo: додати опрацювання невідомих слів (ст.40 у підручнику)
