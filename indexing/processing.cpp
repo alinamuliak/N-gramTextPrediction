@@ -64,6 +64,8 @@ void make_ngrams(unordered_map<string, int> &ph_map, std::vector<string> &w, int
 
 void count_ngrams(unordered_map<string, int> &phrase_map, const string &line, int num_g) {
     using boost::locale::boundary::ssegment_index;
+    string start = "<s>";
+    string end = "</s>";
 
     ssegment_index splitter_one(boost::locale::boundary::sentence, line.begin(), line.end());
     splitter_one.rule(boost::locale::boundary::sentence_any);
@@ -73,16 +75,13 @@ void count_ngrams(unordered_map<string, int> &phrase_map, const string &line, in
         splitter.rule(boost::locale::boundary::word_letters);
 
         std::vector<string> words;
+        words.push_back(start);
         for (ssegment_index::iterator j = splitter.begin(), k = splitter.end(); j != k; ++j) {
             string word = boost::locale::fold_case(boost::locale::normalize(j->str()));
-
-            if (j == splitter.begin()) {
-                word.insert(0, "<s>");
-            }
             words.push_back(word);
         }
         if (!words.empty()) {
-            words[words.size() - 1] = words[words.size() - 1] + "</s>";
+            words.push_back(end);
             make_ngrams(phrase_map, words, num_g);
         }
     }
@@ -92,7 +91,7 @@ void count_ngrams(unordered_map<string, int> &phrase_map, const string &line, in
 
 void index_string(safe_que<string> &queue, safe_que<unordered_map<string, int>> &merge_q, const string &ext) {
     auto buff = static_cast<char *>(::operator new(11000000));
-    int num_grams = 1;
+    int num_grams = 2;
 
     for (;;) {
         unordered_map<string, int> local_map{};
