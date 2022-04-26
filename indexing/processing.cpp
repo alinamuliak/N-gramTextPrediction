@@ -4,29 +4,8 @@ using std::string;
 using std::unordered_map;
 using std::filesystem::path;
 
-void parallel_merge_maps(safe_que<unordered_map<string, int>> &mer_q) {
-    for (;;) {
-        auto pair1 = mer_q.pop();
-        if (pair1.second == "poison_pill") {
-            mer_q.push_end(unordered_map<string, int>{}, 1, "poison_pill");
-            break;
-        }
-        auto pair2 = mer_q.pop();
-        if (pair2.second == "poison_pill") {
-            mer_q.push_start(pair1.first, 1, pair1.second);
-            mer_q.push_end(unordered_map<string, int>{}, 1, "poison_pill");
-            break;
-        }
-        auto map1 = pair1.first;
-        auto map2 = pair2.first;
-        if (map2.size() > map1.size()) {
-            std::swap(map2, map1);
-        }
-        for (const auto &element: map2) {
-            map1[element.first] += element.second;
-        }
-        mer_q.push_start(std::move(map1), 1, "map_m");
-    }
+void probability(unordered_map<string, double> &prob_map, const string& to_predict, int n_gram){
+    //TODO: count probabilities
 }
 
 void make_ngrams(unordered_map<string, int> &ph_map, std::vector<string> &w, int n) {
@@ -88,6 +67,31 @@ void count_ngrams(unordered_map<string, int> &phrase_map, const string &line, in
 
 }
 
+
+void parallel_merge_maps(safe_que<unordered_map<string, int>> &mer_q) {
+    for (;;) {
+        auto pair1 = mer_q.pop();
+        if (pair1.second == "poison_pill") {
+            mer_q.push_end(unordered_map<string, int>{}, 1, "poison_pill");
+            break;
+        }
+        auto pair2 = mer_q.pop();
+        if (pair2.second == "poison_pill") {
+            mer_q.push_start(pair1.first, 1, pair1.second);
+            mer_q.push_end(unordered_map<string, int>{}, 1, "poison_pill");
+            break;
+        }
+        auto map1 = pair1.first;
+        auto map2 = pair2.first;
+        if (map2.size() > map1.size()) {
+            std::swap(map2, map1);
+        }
+        for (const auto &element: map2) {
+            map1[element.first] += element.second;
+        }
+        mer_q.push_start(std::move(map1), 1, "map_m");
+    }
+}
 
 void index_string(safe_que<string> &queue, safe_que<unordered_map<string, int>> &merge_q, const string &ext) {
     auto buff = static_cast<char *>(::operator new(11000000));
