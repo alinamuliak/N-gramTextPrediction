@@ -10,11 +10,10 @@
 #include <thread>
 #include <iterator>
 
-#include "result_files.h"
-#include "myqueue.hpp"
+#include "../indexing/myqueue.hpp"
 #include "main.h"
-#include "parser.h"
-#include "processing.h"
+#include "../parser/parser.h"
+#include "../indexing/processing.h"
 
 
 using std::vector;
@@ -26,6 +25,13 @@ using std::ref;
 using std::unordered_map;
 using std::filesystem::path;
 
+void write_to_file_a(const std::unordered_map<std::string, int> &m, std::ofstream &of) {
+    std::vector<std::pair<std::string, int>> values(m.begin(), m.end());
+    std::sort(values.begin(), values.end());
+    for (auto &p: m) {
+        of << p.first << "  :  " << p.second << std::endl;
+    }
+}
 
 int main(int argc, char *argv[]) {
 
@@ -145,9 +151,6 @@ int main(int argc, char *argv[]) {
 
     std::ofstream of_a(parsed_cfg.ofile_a);
     write_to_file_a(f_map, of_a);
-
-    std::ofstream of_c(parsed_cfg.ofile_c);
-    write_to_file_c(f_map, of_c);
 
     auto write_time = get_current_time_fenced() - write_time_start;
 

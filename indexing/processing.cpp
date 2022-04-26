@@ -39,7 +39,6 @@ void make_ngrams(unordered_map<string, int> &ph_map, std::vector<string> &w, int
                 phrase += w[i + j] + " ";
             }
         }
-        std::cout<<phrase<<std::endl;
         ++ph_map[phrase];
     }
 }
@@ -83,39 +82,38 @@ void index_string(safe_que<string> &queue, safe_que<unordered_map<string, int>> 
             queue.push_end(empty_s, 1, "path");
             break;
         }
-//        if (element.second == ".zip" && ext.find(".zip") != string::npos) {
-//            struct archive *a;
-//            struct archive_entry *entry;
-//            int err_code;
-//
-//            memset(buff, 0, 11000000);
-//
-//            a = archive_read_new();
-//            archive_read_support_filter_all(a);
-//            archive_read_support_format_zip(a);
-//
-//            err_code = archive_read_open_memory(a, line.data(), line.size());
-//
-//            if (err_code != ARCHIVE_OK) {
-//                continue;
-//            }
-//            while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
-//                if (archive_entry_size(entry) > 0 && archive_entry_size(entry) < 10000000 &&
-//                    static_cast<path>(archive_entry_pathname(entry)).extension() == ".txt") {
-//                    auto size = archive_entry_size(entry);
-//                    archive_read_data(a, buff, size);
-//                    buff[size] = '\0';
-//                    count_ngrams(local_map, buff, 1);
-//                }
-//            }
-//            err_code = archive_read_free(a);
-//            if (err_code != ARCHIVE_OK) {
-//                continue;
-//            }
-//        } else if (element.second == ".txt" && ext.find(".txt") != string::npos) {
-//            count_ngrams(local_map, line, 1);
-//        }
-        count_ngrams(local_map, line, 1);
+        if (element.second == ".zip" && ext.find(".zip") != string::npos) {
+            struct archive *a;
+            struct archive_entry *entry;
+            int err_code;
+
+            memset(buff, 0, 11000000);
+
+            a = archive_read_new();
+            archive_read_support_filter_all(a);
+            archive_read_support_format_zip(a);
+
+            err_code = archive_read_open_memory(a, line.data(), line.size());
+
+            if (err_code != ARCHIVE_OK) {
+                continue;
+            }
+            while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+                if (archive_entry_size(entry) > 0 && archive_entry_size(entry) < 10000000 &&
+                    static_cast<path>(archive_entry_pathname(entry)).extension() == ".txt") {
+                    auto size = archive_entry_size(entry);
+                    archive_read_data(a, buff, size);
+                    buff[size] = '\0';
+                    count_ngrams(local_map, buff, 1);
+                }
+            }
+            err_code = archive_read_free(a);
+            if (err_code != ARCHIVE_OK) {
+                continue;
+            }
+        } else if (element.second == ".txt" && ext.find(".txt") != string::npos) {
+            count_ngrams(local_map, line, 1);
+        }
         merge_q.push_start(std::move(local_map), 1, "map");
     }
     ::operator delete(buff);
