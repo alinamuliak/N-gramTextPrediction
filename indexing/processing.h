@@ -11,11 +11,13 @@
 #include <boost/locale/generator.hpp>
 #include <filesystem>
 
-void parallel_merge_maps(safe_que<std::unordered_map<std::string, int>> &mer_q);
+void probability(std::unordered_map<std::string, double> &prob_map, const std::string& to_predict, int n_gram);
 
 void make_ngrams(std::unordered_map<std::string, int> &ph_map, std::vector<std::string> &w, int n);
 
 void count_ngrams(std::unordered_map<std::string, int> &phrase_map, const std::string &line, int num_g);
+
+void parallel_merge_maps(safe_que<std::unordered_map<std::string, int>> &mer_q);
 
 void index_string(safe_que<std::string> &queue, safe_que<std::unordered_map<std::string, int>> &merge_q, const std::string &ext);
 
