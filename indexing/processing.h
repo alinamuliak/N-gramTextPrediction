@@ -13,7 +13,9 @@
 
 void parallel_merge_maps(safe_que<std::unordered_map<std::string, int>> &mer_q);
 
-void count_words(std::unordered_map<std::string, int> &local_map, const std::string &line);
+void make_ngrams(std::unordered_map<std::string, int> &ph_map, std::vector<std::string> &w, int n);
+
+void count_ngrams(std::unordered_map<std::string, int> &phrase_map, const std::string &line, int num_g);
 
 void index_string(safe_que<std::string> &queue, safe_que<std::unordered_map<std::string, int>> &merge_q, const std::string &ext);
 
