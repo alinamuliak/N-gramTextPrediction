@@ -30,18 +30,32 @@ void parallel_merge_maps(safe_que<unordered_map<string, int>> &mer_q) {
 }
 
 void make_ngrams(unordered_map<string, int> &ph_map, std::vector<string> &w, int n) {
-
     for (size_t i = 0; i <= w.size() - n; i++) {
+        string previous;
         string phrase;
         for (int j = 0; j < n; j++) {
             if (j == n - 1) {
                 phrase += w[i + j];
             } else {
-                phrase += w[i + j] + " ";
+                phrase += w[i + j];
+                previous = phrase;
+                phrase += " ";
             }
         }
+        ++ph_map[previous];
         ++ph_map[phrase];
     }
+    // for the n-1 gram at the end of the sentence ?? what am i doing wrong
+    string last;
+    for(int i=0; i<n-1; i++){
+        if (i == n-2) {
+            last.insert(0, w.back());
+        }else{
+            last += " " + w.back();
+            w.pop_back();
+        }
+    }
+    ++ph_map[last];
 }
 
 void count_ngrams(unordered_map<string, int> &phrase_map, const string &line, int num_g) {
@@ -66,7 +80,6 @@ void count_ngrams(unordered_map<string, int> &phrase_map, const string &line, in
         if (!words.empty()) {
             words[words.size() - 1] = words[words.size() - 1] + "</s>";
             make_ngrams(phrase_map, words, num_g);
-            make_ngrams(phrase_map, words, num_g-1);
         }
     }
 
@@ -75,6 +88,8 @@ void count_ngrams(unordered_map<string, int> &phrase_map, const string &line, in
 
 void index_string(safe_que<string> &queue, safe_que<unordered_map<string, int>> &merge_q, const string &ext) {
     auto buff = static_cast<char *>(::operator new(11000000));
+    int num_grams = 3;
+
     for (;;) {
         unordered_map<string, int> local_map{};
         auto element = queue.pop();
@@ -106,7 +121,7 @@ void index_string(safe_que<string> &queue, safe_que<unordered_map<string, int>> 
                     auto size = archive_entry_size(entry);
                     archive_read_data(a, buff, size);
                     buff[size] = '\0';
-                    count_ngrams(local_map, buff, 1);
+                    count_ngrams(local_map, buff, num_grams);
                 }
             }
             err_code = archive_read_free(a);
@@ -114,7 +129,7 @@ void index_string(safe_que<string> &queue, safe_que<unordered_map<string, int>> 
                 continue;
             }
         } else if (element.second == ".txt" && ext.find(".txt") != string::npos) {
-            count_ngrams(local_map, line, 1);
+            count_ngrams(local_map, line, num_grams);
         }
         merge_q.push_start(std::move(local_map), 1, "map");
     }
