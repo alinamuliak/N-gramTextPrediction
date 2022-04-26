@@ -42,20 +42,24 @@ void make_ngrams(unordered_map<string, int> &ph_map, std::vector<string> &w, int
                 phrase += " ";
             }
         }
-        ++ph_map[previous];
+        if (!previous.empty()) {
+            ++ph_map[previous];
+        }
         ++ph_map[phrase];
     }
     // for the n-1 gram at the end of the sentence ?? what am i doing wrong
-    string last;
-    for(int i=0; i<n-1; i++){
-        if (i == n-2) {
-            last.insert(0, w.back());
-        }else{
-            last += " " + w.back();
-            w.pop_back();
+    if (n > 1) {
+        string last;
+        for (int i = 0; i < n - 1; i++) {
+            if (i == n - 2) {
+                last.insert(0, w.back());
+            } else {
+                last += " " + w.back();
+                w.pop_back();
+            }
         }
+        ++ph_map[last];
     }
-    ++ph_map[last];
 }
 
 void count_ngrams(unordered_map<string, int> &phrase_map, const string &line, int num_g) {
@@ -88,7 +92,7 @@ void count_ngrams(unordered_map<string, int> &phrase_map, const string &line, in
 
 void index_string(safe_que<string> &queue, safe_que<unordered_map<string, int>> &merge_q, const string &ext) {
     auto buff = static_cast<char *>(::operator new(11000000));
-    int num_grams = 3;
+    int num_grams = 1;
 
     for (;;) {
         unordered_map<string, int> local_map{};
