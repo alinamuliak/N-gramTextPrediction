@@ -30,12 +30,13 @@ void parallel_merge_maps(safe_que<unordered_map<string, int>> &mer_q) {
 }
 
 void make_ngrams(unordered_map<string, int> &ph_map, std::vector<string> &w, int n) {
-    for( size_t i=0; i<=w.size()-n; i++){
+
+    for (size_t i = 0; i <= w.size() - n; i++) {
         string phrase;
-        for (int j=0; j<n; j++){
-            if (j == n-1){
-                phrase += w[i+j];
-            }else{
+        for (int j = 0; j < n; j++) {
+            if (j == n - 1) {
+                phrase += w[i + j];
+            } else {
                 phrase += w[i + j] + " ";
             }
         }
@@ -63,8 +64,9 @@ void count_ngrams(unordered_map<string, int> &phrase_map, const string &line, in
             words.push_back(word);
         }
         if (!words.empty()) {
-            words[words.size()-1] = words[words.size()-1] + "</s>";
+            words[words.size() - 1] = words[words.size() - 1] + "</s>";
             make_ngrams(phrase_map, words, num_g);
+            make_ngrams(phrase_map, words, num_g-1);
         }
     }
 
