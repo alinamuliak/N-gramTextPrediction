@@ -1,5 +1,6 @@
-#ifndef QLAB_MAIN_H
-#define QLAB_MAIN_H
+#ifndef NGRAM_MAIN_H
+#define NGRAM_MAIN_H
+
 
 #include <unordered_map>
 #include <boost/algorithm/string.hpp>
@@ -20,4 +21,4 @@ inline long long to_us(const D &d) {
     return std::chrono::duration_cast<std::chrono::milliseconds>(d).count();
 }
 
-#endif //QLAB_MAIN_H
+#endif //NGRAM_MAIN_H

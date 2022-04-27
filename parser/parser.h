@@ -1,5 +1,5 @@
-#ifndef QLAB_PARSER_H
-#define QLAB_PARSER_H
+#ifndef N_GRAMS_PARSER_H
+#define N_GRAMS_PARSER_H
 
 #include <stdexcept>
 #include <unordered_map>
@@ -47,4 +47,4 @@ struct wrong_option_arg_error : public config_error {
 };
 
 
-#endif //QLAB_PARSER_H
+#endif //N_GRAMS_PARSER_H

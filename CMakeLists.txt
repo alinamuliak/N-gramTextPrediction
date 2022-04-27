@@ -55,7 +55,7 @@ include(cmake/CompilerWarnings.cmake)
 ##########################################################
 
 #! Project main executable source compilation
-add_executable(${PROJECT_NAME} src/main.cpp src/main.h indexing/myqueue.hpp parser/parser.cpp parser/parser.h indexing/processing.cpp indexing/processing.h)
+add_executable(${PROJECT_NAME} src/main.cpp src/main.h indexing/myqueue.hpp parser/parser.cpp parser/parser.h indexing/processing.cpp indexing/processing.h prediction/prediction.h prediction/prediction.cpp)
 
 
 

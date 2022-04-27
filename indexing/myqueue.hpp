@@ -7,8 +7,8 @@
 #include <mutex>
 #include <condition_variable>
 
-#ifndef QLAB_MYQUEUE_HPP
-#define QLAB_MYQUEUE_HPP
+#ifndef N_GRAMS_MYQUEUE_HPP
+#define N_GRAMS_MYQUEUE_HPP
 
 
 // this code credited (mostly) by Oleg Farenyuk
@@ -101,4 +101,4 @@ private:
     std::condition_variable cv_popped;
 };
 
-#endif //QLAB_MYQUEUE_HPP
+#endif //N_GRAMS_MYQUEUE_HPP

@@ -36,27 +36,10 @@ void make_ngrams(unordered_map<string, int> &ph_map, std::vector<string> &w, int
                 phrase += w[i + j];
             } else {
                 phrase += w[i + j];
-//                previous = phrase;
                 phrase += " ";
             }
         }
-//        if (!previous.empty()) {
-//            ++ph_map[previous];
-//        }
         ++ph_map[phrase];
-    }
-    // for the n-1 gram at the end of the sentence ?? what am i doing wrong
-    if (n > 1) {
-        string last;
-        for (int i = 0; i < n - 1; i++) {
-            if (i == n - 2) {
-                last.insert(0, w.back());
-            } else {
-                last += " " + w.back();
-                w.pop_back();
-            }
-        }
-        ++ph_map[last];
     }
 }
 
