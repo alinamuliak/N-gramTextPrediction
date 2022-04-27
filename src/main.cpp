@@ -58,9 +58,9 @@ int main(int argc, char *argv[]) {
 
 
     string filename;
-    if (argc >= 3) {
-        filename = argv[2];
-    } else if (argc == 2) {
+    if (argc >= 2) {
+        filename = argv[1];
+    } else if (argc == 1) {
         filename = "./index.cfg";
     } else {
         std::cerr << "ERROR wrong amount of arguments" << endl;
@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
         return ERROR_IN_CONFIG_FILE;
     }
 
-    if (std::string(argv[1]) == "train") {
+    if (parsed_cfg.option == 0) {
         safe_que<path> files_que(parsed_cfg.files_queue_s);
         safe_que<string> string_que(parsed_cfg.strings_queue_s);
         safe_que<unordered_map<string, int>> merge_q_n(parsed_cfg.merge_queue_s, true);
@@ -108,7 +108,7 @@ int main(int argc, char *argv[]) {
 
         for (int i = 0; i < parsed_cfg.index_threads; i++) {
             main_flows.emplace_back(index_string, ref(string_que), ref(merge_q_n), ref(merge_q_n_1),
-                                    std::ref(parsed_cfg.extensions));
+                                    std::ref(parsed_cfg.extensions), parsed_cfg.ngram_par);
         }
         for (int i = 0; i < parsed_cfg.merge_threads; i++) {
             merge_flows.emplace_back(parallel_merge_maps, ref(merge_q_n));
@@ -167,12 +167,11 @@ int main(int argc, char *argv[]) {
 
         auto write_time_start = get_current_time_fenced();
 
-        int n = 2;
         unordered_map<string, double> prob_map;
-        count_probabilities(prob_map, f_map_n, f_map_n_1, n);
-        std::ofstream of_prob(parsed_cfg.ofile_a);
-        std::ofstream of_next_words(parsed_cfg.ofile_c);
-        write_to_file(prob_map, of_prob, of_next_words, n);
+        count_probabilities(prob_map, f_map_n, f_map_n_1, parsed_cfg.ngram_par);
+        std::ofstream of_prob(parsed_cfg.out_prob);
+        std::ofstream of_next_words(parsed_cfg.out_ngram);
+        write_to_file(prob_map, of_prob, of_next_words, parsed_cfg.ngram_par);
 
         auto write_time = get_current_time_fenced() - write_time_start;
 
@@ -182,14 +181,12 @@ int main(int argc, char *argv[]) {
         cout << "\t  Find:   " << to_us(find_time) << endl;
         cout << "\t  Write:  " << to_us(write_time) << endl;
 
-    } else if (std::string(argv[1]) == "predict") {
+    } else if (parsed_cfg.option == 1) {
 
         cout << "Hold on... Preparing text..." << endl;
-        auto probabilities_file = parsed_cfg.ofile_a;
-        auto next_words_file = parsed_cfg.ofile_c;
 
-        auto prob_map = file_to_probabilities_map(probabilities_file);
-        auto next_words_map = file_to_next_words_map(next_words_file);
+        auto prob_map = file_to_probabilities_map(parsed_cfg.out_prob);
+        auto next_words_map = file_to_next_words_map(parsed_cfg.out_ngram);
 
 
         // todo: тут поки що тільки для 2-грам зроблено, загальнішу логіку треба доробляти
@@ -198,15 +195,18 @@ int main(int argc, char *argv[]) {
         cin >> input;
         // для закінчення вводу - ///
         while (input != "///") {
-            boost::detail::Sleep(100);
-            auto predicted_word = predict_next_word(input, prob_map, next_words_map);
-            cout << "-> " << predicted_word << endl;
+            auto predicted_words = predict_next_word(input, prob_map, next_words_map, parsed_cfg.word_num);
+            cout << "-> " ;
+            for (const auto& el: predicted_words) {
+                cout << el << " ";
+            }
+            cout << endl;
             cin >> input;
         }
         cout << "Finish" << endl;
 
     } else {
-        std::cerr << "Wrong mode: need 'train' or 'predict'" << endl;
+        std::cerr << "Wrong mode: need 0 for 'train' or 1 for 'predict'" << endl;
         return INVALID_ARGUMENTS;
     }
 
