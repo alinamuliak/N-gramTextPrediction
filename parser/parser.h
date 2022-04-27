@@ -20,12 +20,15 @@ struct params {
     int index_threads{};
     int merge_threads{};
     string indir;
-    string ofile_a;
-    string ofile_c;
+    string out_prob;
+    string out_ngram;
     string extensions;
     size_t files_queue_s;
     size_t strings_queue_s;
     size_t merge_queue_s;
+    int ngram_par;
+    int option;
+    int word_num;
 };
 
 parsed_line parse_string(std::string line);

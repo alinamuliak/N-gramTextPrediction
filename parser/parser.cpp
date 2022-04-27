@@ -64,12 +64,15 @@ params fill_params(std::ifstream &cf) {
     p.index_threads = stoi(map["index_threads"]);
     p.merge_threads = stoi(map["merge_threads"]);
     p.indir = map["indir"];
-    p.ofile_a = map["out_by_a"];
-    p.ofile_c = map["out_by_c"];
+    p.out_prob = map["out_prob"]; //ofile_a
+    p.out_ngram = map["out_ngram"];  //ofile_c
     p.extensions = map["allowed_ext"];
     p.files_queue_s = stol(map["files_queue_s"]);
     p.strings_queue_s = stol(map["strings_queue_s"]);
     p.merge_queue_s = stol(map["merge_queue_s"]);
+    p.ngram_par = stoi(map["ngram_par"]);
+    p.option = stoi(map["option"]);
+    p.word_num = stoi(map["word_num"]);
 
     return p;
 }
