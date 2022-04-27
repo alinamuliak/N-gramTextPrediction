@@ -190,17 +190,25 @@ int main(int argc, char *argv[]) {
 
 
         // todo: тут поки що тільки для 2-грам зроблено, загальнішу логіку треба доробляти
-        std::string input;
+        std::string input = "<s>";
+        std::string prev_input;
         cout << "Start typing: " << endl;
-        cin >> input;
         // для закінчення вводу - ///
         while (input != "///") {
+            // todo:: додати гарну обробку всіх розділових знаків
+            if (input == "." || input == "!" || input == "?") {
+                input = "<s>";
+            } else if (input == "," || input == ";" || input == ":" || input == "\"") {
+                input = prev_input;
+                continue;
+            }
             auto predicted_words = predict_next_word(input, prob_map, next_words_map, parsed_cfg.word_num);
             cout << "-> " ;
             for (const auto& el: predicted_words) {
                 cout << el << " ";
             }
             cout << endl;
+            prev_input = input;
             cin >> input;
         }
         cout << "Finish" << endl;
