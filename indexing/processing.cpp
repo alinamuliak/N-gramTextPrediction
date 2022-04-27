@@ -4,8 +4,27 @@ using std::string;
 using std::unordered_map;
 using std::filesystem::path;
 
-void probability(unordered_map<string, double> &prob_map, const string& to_predict, int n_gram){
-    //TODO: count probabilities
+string get_first_n_words(int n, const std::string& text) {
+    std::stringstream ss(text);
+    std::string result;
+    std::string word;
+    int i = 0;
+    while (i < n && ss >> word) {
+        result += word;
+        if (i != n - 1) {
+            result += " ";
+        }
+        ++i;
+    }
+    return result;
+}
+
+void count_probabilities(unordered_map<string, double> &prob_map, const unordered_map<string, int> &phrase_map_n, unordered_map<string, int> &phrase_map_n_1, int n){
+    for (const auto& el: phrase_map_n) {
+        auto first_n_1_words = get_first_n_words(n - 1, el.first);
+//        std::cout << static_cast<double>(el.second) / static_cast<double>(phrase_map_n_1[first_n_1_words]) << std::endl;
+        prob_map[el.first] = static_cast<double>(el.second) / static_cast<double>(phrase_map_n_1[first_n_1_words]);
+    }
 }
 
 void make_ngrams(unordered_map<string, int> &ph_map, std::vector<string> &w, int n) {
@@ -17,13 +36,13 @@ void make_ngrams(unordered_map<string, int> &ph_map, std::vector<string> &w, int
                 phrase += w[i + j];
             } else {
                 phrase += w[i + j];
-                previous = phrase;
+//                previous = phrase;
                 phrase += " ";
             }
         }
-        if (!previous.empty()) {
-            ++ph_map[previous];
-        }
+//        if (!previous.empty()) {
+//            ++ph_map[previous];
+//        }
         ++ph_map[phrase];
     }
     // for the n-1 gram at the end of the sentence ?? what am i doing wrong
@@ -41,7 +60,7 @@ void make_ngrams(unordered_map<string, int> &ph_map, std::vector<string> &w, int
     }
 }
 
-void count_ngrams(unordered_map<string, int> &phrase_map, const string &line, int num_g) {
+void count_ngrams(unordered_map<string, int> &phrase_map_n, unordered_map<string, int> &phrase_map_n_1, const string &line, int num_g) {
     using boost::locale::boundary::ssegment_index;
     string start = "<s>";
     string end = "</s>";
@@ -61,7 +80,8 @@ void count_ngrams(unordered_map<string, int> &phrase_map, const string &line, in
         }
         if (!words.empty()) {
             words.push_back(end);
-            make_ngrams(phrase_map, words, num_g);
+            make_ngrams(phrase_map_n, words, num_g);
+            make_ngrams(phrase_map_n_1, words, num_g - 1);
         }
     }
 
@@ -93,12 +113,13 @@ void parallel_merge_maps(safe_que<unordered_map<string, int>> &mer_q) {
     }
 }
 
-void index_string(safe_que<string> &queue, safe_que<unordered_map<string, int>> &merge_q, const string &ext) {
+void index_string(safe_que<string> &queue, safe_que<unordered_map<string, int>> &merge_q_n, safe_que<unordered_map<string, int>> &merge_q_n_1, const string &ext) {
     auto buff = static_cast<char *>(::operator new(11000000));
     int num_grams = 2;
 
     for (;;) {
-        unordered_map<string, int> local_map{};
+        unordered_map<string, int> local_map_n{};
+        unordered_map<string, int> local_map_n_1{};
         auto element = queue.pop();
         auto line = element.first;
         if (line.empty()) {
@@ -128,7 +149,7 @@ void index_string(safe_que<string> &queue, safe_que<unordered_map<string, int>> 
                     auto size = archive_entry_size(entry);
                     archive_read_data(a, buff, size);
                     buff[size] = '\0';
-                    count_ngrams(local_map, buff, num_grams);
+                    count_ngrams(local_map_n, local_map_n_1, buff, num_grams);
                 }
             }
             err_code = archive_read_free(a);
@@ -136,9 +157,10 @@ void index_string(safe_que<string> &queue, safe_que<unordered_map<string, int>> 
                 continue;
             }
         } else if (element.second == ".txt" && ext.find(".txt") != string::npos) {
-            count_ngrams(local_map, line, num_grams);
+            count_ngrams(local_map_n, local_map_n_1, line, num_grams);
         }
-        merge_q.push_start(std::move(local_map), 1, "map");
+        merge_q_n.push_start(std::move(local_map_n), 1, "map");
+        merge_q_n_1.push_start(std::move(local_map_n_1), 1, "map");
     }
     ::operator delete(buff);
 }

@@ -25,8 +25,9 @@ using std::ref;
 using std::unordered_map;
 using std::filesystem::path;
 
-void write_to_file_a(const std::unordered_map<std::string, int> &m, std::ofstream &of) {
-    std::vector<std::pair<std::string, int>> values(m.begin(), m.end());
+
+void write_to_file_a(const std::unordered_map<std::string, double> &m, std::ofstream &of) {
+    std::vector<std::pair<std::string, double>> values(m.begin(), m.end());
     std::sort(values.begin(), values.end());
     for (auto &p: m) {
         of << p.first << "  :  " << p.second << std::endl;
@@ -75,7 +76,8 @@ int main(int argc, char *argv[]) {
 
     safe_que<path> files_que(parsed_cfg.files_queue_s);
     safe_que<string> string_que(parsed_cfg.strings_queue_s);
-    safe_que<unordered_map<string, int>> merge_q(parsed_cfg.merge_queue_s, true);
+    safe_que<unordered_map<string, int>> merge_q_n(parsed_cfg.merge_queue_s, true);
+    safe_que<unordered_map<string, int>> merge_q_n_1(parsed_cfg.merge_queue_s, true);
 
     // pills
     path empty_p;
@@ -96,10 +98,14 @@ int main(int argc, char *argv[]) {
 
 
     for (int i = 0; i < parsed_cfg.index_threads; i++) {
-        main_flows.emplace_back(index_string, ref(string_que), ref(merge_q), std::ref(parsed_cfg.extensions));
+        main_flows.emplace_back(index_string, ref(string_que), ref(merge_q_n), ref(merge_q_n_1), std::ref(parsed_cfg.extensions));
     }
     for (int i = 0; i < parsed_cfg.merge_threads; i++) {
-        merge_flows.emplace_back(parallel_merge_maps, ref(merge_q));
+        merge_flows.emplace_back(parallel_merge_maps, ref(merge_q_n));
+    }
+
+    for (int i = 0; i < parsed_cfg.merge_threads; i++) {
+        merge_flows.emplace_back(parallel_merge_maps, ref(merge_q_n_1));
     }
 
     auto read_time_start = get_current_time_fenced();
@@ -127,7 +133,7 @@ int main(int argc, char *argv[]) {
         if (buffer.empty() || raw_file.tellg() > 10485760) {
             continue;
         }
-        string_que.push_end(buffer, buffer.size(), file_p.extension());
+        string_que.push_end(buffer, buffer.size(), file_p.extension().string());
     }
 
     auto read_time = get_current_time_fenced() - read_time_start;
@@ -136,21 +142,31 @@ int main(int argc, char *argv[]) {
         if (t.joinable())
             t.join();
 
-    merge_q.push_end(unordered_map<string, int>{}, 1, "poison_pill");
+    merge_q_n.push_end(unordered_map<string, int>{}, 1, "poison_pill");
+    merge_q_n_1.push_end(unordered_map<string, int>{}, 1, "poison_pill");
 
 
     for (auto &t: merge_flows)
         if (t.joinable())
             t.join();
 
-    auto f_map = merge_q.pop().first;
+    auto f_map_n = merge_q_n.pop().first;
+    auto f_map_n_1 = merge_q_n_1.pop().first;
 
     auto full_time = get_current_time_fenced() - full_time_start;
 
     auto write_time_start = get_current_time_fenced();
 
-    std::ofstream of_a(parsed_cfg.ofile_a);
-    write_to_file_a(f_map, of_a);
+//    std::ofstream of_n(parsed_cfg.ofile_a);
+//    write_to_file_a(f_map_n, of_n);
+
+//    std::ofstream of_n_1(parsed_cfg.ofile_c);
+//    write_to_file_a(f_map_n_1, of_n_1);
+
+    unordered_map<string, double> prob_map;
+    count_probabilities(prob_map, f_map_n, f_map_n_1, 2);
+    std::ofstream of_n(parsed_cfg.ofile_a);
+    write_to_file_a(prob_map, of_n);
 
     auto write_time = get_current_time_fenced() - write_time_start;
 
