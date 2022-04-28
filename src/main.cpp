@@ -27,11 +27,13 @@ using std::unordered_map;
 using std::filesystem::path;
 
 
-void write_to_file(const std::unordered_map<std::string, double> &m, std::ofstream &prob, std::ofstream &next_words, int n) {
+void
+write_to_file(const std::unordered_map<std::string, double> &m, std::ofstream &prob, std::ofstream &next_words, int n) {
     for (auto &p: m) {
         prob << p.first << ":" << p.second << std::endl;
 
-        next_words << get_first_n_words(n - 1, p.first) << ":" << p.first.substr(p.first.find_last_of(' ') + 1) << std::endl;
+        next_words << get_first_n_words(n - 1, p.first) << ":" << p.first.substr(p.first.find_last_of(' ') + 1)
+                   << std::endl;
     }
 }
 
@@ -203,8 +205,8 @@ int main(int argc, char *argv[]) {
                 continue;
             }
             auto predicted_words = predict_next_word(input, prob_map, next_words_map, parsed_cfg.word_num);
-            cout << "-> " ;
-            for (const auto& el: predicted_words) {
+            cout << "-> ";
+            for (const auto &el: predicted_words) {
                 cout << el << " ";
             }
             cout << endl;
