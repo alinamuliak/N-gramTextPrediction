@@ -9,9 +9,23 @@ bool contains(const std::unordered_map<std::string, std::vector<std::string>>& m
     return true;
 }
 
+
+std::string join(const std::vector<std::string>& v) {
+    std::string joined_v;
+    for (size_t i = 0; i < v.size(); ++i) {
+        joined_v += v[i];
+        if (i != v.size() - 1) {
+            joined_v += " ";
+        }
+    }
+    return joined_v;
+}
+
+
 std::unordered_map<std::string, double> file_to_probabilities_map(const std::string& filename) {
-    std::ifstream infile(filename);
+    std::fstream infile(filename);
     std::unordered_map<std::string, double> probabilities_map;
+
     std::string line;
     while (std::getline(infile, line)) {
         std::vector<std::string> result;
@@ -29,33 +43,40 @@ std::unordered_map<std::string, std::vector<std::string>> file_to_next_words_map
     while (std::getline(infile, line)) {
         std::vector<std::string> result;
         boost::algorithm::split(result, line, boost::is_any_of(":"));
-        words_map[result[0]].emplace_back(result[1]);
+        if (std::count(words_map[result[0]].begin(), words_map[result[0]].end(), result[1]) == 0) {
+            words_map[result[0]].emplace_back(result[1]);
+        }
     }
     return words_map;
 }
 
+
 std::vector<std::string> predict_next_word(const std::string& phrase, std::unordered_map<std::string, double>& prob_map, std::unordered_map<std::string, std::vector<std::string>>& next_words_map, int words_n) {
     auto normalized_phrase = boost::locale::fold_case(boost::locale::normalize(phrase));
-    std::vector<std::string> predicted_words(words_n);
+    std::vector<std::string> predicted_words;
     if (contains(next_words_map, normalized_phrase)) {
         std::vector<double> words_probability(words_n);
         for (const auto& str: next_words_map[normalized_phrase]) {
-            std::string current_str = normalized_phrase + " " + str;
-            double min_prob = *min_element(words_probability.begin(), words_probability.end());
+            std::string current_str = normalized_phrase.append(" ").append(str);
 
-            if (prob_map[current_str] > min_prob) {
-                auto index_of_min = std::find(words_probability.begin(), words_probability.end(), min_prob) - words_probability.begin();
-                words_probability[index_of_min] = prob_map[current_str];
+            if (predicted_words.size() >= words_n) {
+                double min_prob = *min_element(words_probability.begin(), words_probability.end());
 
-                if (str != "</s>") {
+                if (prob_map[current_str] > min_prob) {
+                    auto index_of_min = std::find(words_probability.begin(), words_probability.end(), min_prob) -
+                                        words_probability.begin();
+                    words_probability[index_of_min] = prob_map[current_str];
                     predicted_words[index_of_min] = str;
-                } else {
-                    predicted_words[index_of_min] = "*end of sentence*";
+
                 }
+            } else {
+                predicted_words.emplace_back(str);
             }
         }
     } else {
-        std::cout << "Can't predict words for it yet :(" << std::endl;
+        // todo: ну тут має пропонуватися слова після <UNK> або рандомні,
+        //     головне хоч щось
+        std::cout << "Can't predict words for it yet :(";
     }
     return predicted_words;
 }

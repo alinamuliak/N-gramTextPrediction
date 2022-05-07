@@ -1,0 +1,10 @@
+<s> <s> i:1
+<s> i like:1
+i like cats:0.66
+i like dogs:0.33
+like cats </s>:0.5
+like cats very:0.5
+cats very much:1
+like dogs </s>:1
+dogs </s> <s>:1
+</s> <s> hello:1

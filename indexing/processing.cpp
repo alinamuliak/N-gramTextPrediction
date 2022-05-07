@@ -31,10 +31,8 @@ void make_ngrams(unordered_map<string, int> &ph_map, std::vector<string> &w, int
         string previous;
         string phrase;
         for (int j = 0; j < n; j++) {
-            if (j == n - 1) {
-                phrase += w[i + j];
-            } else {
-                phrase += w[i + j];
+            phrase += w[i + j];
+            if (j != n - 1) {
                 phrase += " ";
             }
         }

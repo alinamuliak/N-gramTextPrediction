@@ -6,11 +6,16 @@
 #include <unordered_map>
 #include <string>
 #include <fstream>
+
 #include <vector>
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
 #include <boost/locale.hpp>
 
+
+bool contains(const std::unordered_map<std::string, std::vector<std::string>>& map, const std::string& key);
+
+std::string join(const std::vector<std::string>& v);
 
 std::unordered_map<std::string, double> file_to_probabilities_map(const std::string& filename);
 

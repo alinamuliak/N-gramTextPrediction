@@ -4,6 +4,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <boost/locale.hpp>
+#include <boost/algorithm/string.hpp>
 //#include <boost/locale/generator.hpp>
 #include <filesystem>
 #include <algorithm>
@@ -35,6 +36,7 @@ void write_to_file(const std::unordered_map<std::string, double> &m, std::ofstre
     }
 }
 
+
 int main(int argc, char *argv[]) {
 
     boost::locale::localization_backend_manager lbm = boost::locale::localization_backend_manager::global();
@@ -50,6 +52,8 @@ int main(int argc, char *argv[]) {
         FAILED_TO_OPEN_CONFIG_FILE,
         ERROR_IN_CONFIG_FILE
     };
+
+//    -------------- ARGUMENT VALIDATION --------------
 
     if (argc < 1) {
         std::cerr << "ERROR: wrong amount of arguments" << endl;
@@ -81,6 +85,8 @@ int main(int argc, char *argv[]) {
         std::cerr << "ERROR " << ex.what() << endl;
         return ERROR_IN_CONFIG_FILE;
     }
+
+    //    ------------------- MAIN PART --------------------
 
     if (parsed_cfg.option == 0) {
         safe_que<path> files_que(parsed_cfg.files_queue_s);
@@ -188,30 +194,38 @@ int main(int argc, char *argv[]) {
         auto prob_map = file_to_probabilities_map(parsed_cfg.out_prob);
         auto next_words_map = file_to_next_words_map(parsed_cfg.out_ngram);
 
+        std::string end_punctuation = ".!?";
+        std::string continue_punctuation = ",:;\"'";
+        int n = parsed_cfg.ngram_par - 1;
+        std::vector<std::string> last_n_inputs;
+        while (n--) {
+            last_n_inputs.emplace_back("<s>");
+        }
+        std::string current_input = join(last_n_inputs);
 
-        // todo: тут поки що тільки для 2-грам зроблено, загальнішу логіку треба доробляти
-        std::string input = "<s>";
-        std::string prev_input;
-        cout << "Start typing: " << endl;
         // для закінчення вводу - ///
-        while (input != "///") {
-            // todo:: додати гарну обробку всіх розділових знаків
-            if (input == "." || input == "!" || input == "?") {
-                input = "<s>";
-            } else if (input == "," || input == ";" || input == ":" || input == "\"") {
-                input = prev_input;
-                continue;
-            }
-            auto predicted_words = predict_next_word(input, prob_map, next_words_map, parsed_cfg.word_num);
-            cout << "-> " ;
+        while (current_input != "///") {
+            auto predicted_words = predict_next_word(join(last_n_inputs), prob_map, next_words_map, parsed_cfg.word_num);
             for (const auto& el: predicted_words) {
                 cout << el << " ";
             }
             cout << endl;
-            prev_input = input;
-            cin >> input;
+            last_n_inputs.erase(last_n_inputs.begin());
+            cout << "-> ";
+            cin >> current_input;
+            boost::trim(current_input);
+
+            if (end_punctuation.find(current_input) != std::string::npos) {
+                last_n_inputs.emplace_back("</s>");
+                last_n_inputs.erase(last_n_inputs.begin());
+                last_n_inputs.emplace_back("<s>");
+                continue;
+            } else if (continue_punctuation.find(current_input != std::string::npos)) {
+                continue;
+            }
+            last_n_inputs.emplace_back(current_input);
         }
-        cout << "Finish" << endl;
+        cout << "Finish!" << endl;
 
     } else {
         std::cerr << "Wrong mode: need 0 for 'train' or 1 for 'predict'" << endl;

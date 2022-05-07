@@ -1,0 +1,11 @@
+<s> <s>:i
+<s> i:like
+like cats:</s>
+like dogs:</s>
+like cats:very
+cats very: much
+i like:cats
+i like:dogs
+i like:cats
+dogs </s>:<s>
+</s> <s>:hello
