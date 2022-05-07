@@ -52,6 +52,9 @@ std::unordered_map<std::string, std::vector<std::string>> file_to_next_words_map
 
 
 std::vector<std::string> predict_next_word(const std::string& phrase, std::unordered_map<std::string, double>& prob_map, std::unordered_map<std::string, std::vector<std::string>>& next_words_map, int words_n) {
+std::vector<std::string> predict_next_word(const std::string &phrase, std::unordered_map<std::string, double> &prob_map,
+                                           std::unordered_map<std::string, std::vector<std::string>> &next_words_map,
+                                           int words_n) {
     auto normalized_phrase = boost::locale::fold_case(boost::locale::normalize(phrase));
     std::vector<std::string> predicted_words;
     if (contains(next_words_map, normalized_phrase)) {
@@ -67,7 +70,6 @@ std::vector<std::string> predict_next_word(const std::string& phrase, std::unord
                                         words_probability.begin();
                     words_probability[index_of_min] = prob_map[current_str];
                     predicted_words[index_of_min] = str;
-
                 }
             } else {
                 predicted_words.emplace_back(str);
