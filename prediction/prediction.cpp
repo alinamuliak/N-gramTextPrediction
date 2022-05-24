@@ -62,7 +62,9 @@ void string_to_next_words_map_parallel(std::unordered_map<std::string, std::vect
     for (size_t i = thread_num * lines_per_thread; i < (thread_num + 1) * lines_per_thread; ++i) {
         std::vector<std::string> line;
         boost::algorithm::split(line, words_split[i], boost::is_any_of(":"));
-        words_map[line[0]].emplace_back(line[1]);
+        if (std::count(words_map[line[0]].begin(), words_map[line[0]].end(), line[1]) == 0) {
+            words_map[line[0]].emplace_back(line[1]);
+        }
     }
 }
 
