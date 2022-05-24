@@ -5,17 +5,16 @@
 #include <unordered_map>
 #include <boost/locale.hpp>
 #include <boost/algorithm/string.hpp>
-//#include <boost/locale/generator.hpp>
 #include <filesystem>
 #include <algorithm>
 #include <thread>
 #include <iterator>
 
 #include "../indexing/myqueue.hpp"
-#include "main.h"
 #include "../parser/parser.h"
 #include "../indexing/processing.h"
 #include "../prediction/prediction.h"
+#include "main.h"
 
 
 using std::vector;
@@ -108,8 +107,8 @@ int main(int argc, char *argv[]) {
         files_que.push_end(empty_p, 1, "path");
         auto find_time = get_current_time_fenced() - find_time_start;
 
-        vector<std::thread> main_flows(parsed_cfg.index_threads);
-        vector<std::thread> merge_flows(parsed_cfg.merge_threads);
+        std::vector<std::thread> main_flows(parsed_cfg.index_threads);
+        std::vector<std::thread> merge_flows(parsed_cfg.merge_threads);
 
 
         for (int i = 0; i < parsed_cfg.index_threads; i++) {
@@ -190,9 +189,53 @@ int main(int argc, char *argv[]) {
     } else if (parsed_cfg.option == 1) {
 
         cout << "Hold on... Preparing text..." << endl;
+        std::unordered_map<std::string, double> prob_map;
+        std::unordered_map<std::string, std::vector<std::string>> next_words_map;
 
-        auto prob_map = file_to_probabilities_map(parsed_cfg.out_prob);
-        auto next_words_map = file_to_next_words_map(parsed_cfg.out_ngram);
+        auto prediction_time_start = get_current_time_fenced();
+        if (parsed_cfg.pred_threads == 0) {
+            prob_map = file_to_probabilities_map(parsed_cfg.out_prob);
+            next_words_map = file_to_next_words_map(parsed_cfg.out_ngram);
+        } else {
+            // читаємо весь файл і сплітимо по \n
+            std::ifstream out_prob(parsed_cfg.out_prob);
+            auto probabilities = static_cast<std::ostringstream&>(
+                    std::ostringstream{} << out_prob.rdbuf()).str();
+            std::ifstream out_ngram(parsed_cfg.out_ngram);
+            auto ngram = static_cast<std::ostringstream&>(
+                    std::ostringstream{} << out_ngram.rdbuf()).str();
+
+            std::vector<std::string> probabilities_split;
+            std::vector<std::string> ngram_split;
+            boost::algorithm::split(probabilities_split, probabilities, boost::is_any_of("\n"));
+            boost::algorithm::split(ngram_split, ngram, boost::is_any_of("\n"));
+
+            size_t n = ngram_split.size();
+            size_t lines_per_thread = std::floor(n / parsed_cfg.pred_threads);
+
+
+            std::vector<std::thread> processing_flows(parsed_cfg.pred_threads);
+            std::vector<std::unordered_map<std::string, std::vector<std::string>>> words_maps;
+            std::vector<std::unordered_map<std::string, double>> probability_maps;
+            for (int i = 0; i < std::floor(parsed_cfg.pred_threads/2); i++) {
+                processing_flows.emplace_back(string_to_next_words_map_parallel, ref(words_maps[i]), probabilities_split, i, lines_per_thread);
+            }
+
+            for (int i = 0; i < std::ceil(parsed_cfg.pred_threads/2); ++i) {
+                processing_flows.emplace_back(string_to_probabilities_map_parallel, ref(probability_maps[i]), ngram_split, i, lines_per_thread);
+            }
+
+            for (int i = 0; i < parsed_cfg.pred_threads; ++i) {
+                processing_flows[i].join();
+            }
+
+//            merge maps
+            prob_map = merge_probability(probability_maps);
+            next_words_map = merge_next_words(words_maps);
+        }
+
+        auto prediction_time = get_current_time_fenced() - prediction_time_start;
+        cout << "Processing time: " << to_us(prediction_time) << endl;
 
         std::string end_punctuation = ".!?";
         std::string continue_punctuation = ",:;\"'";
@@ -211,7 +254,7 @@ int main(int argc, char *argv[]) {
             }
             cout << endl;
             last_n_inputs.erase(last_n_inputs.begin());
-            cout << "-> ";
+            cout << "->\t";
             cin >> current_input;
             boost::trim(current_input);
 
@@ -220,7 +263,7 @@ int main(int argc, char *argv[]) {
                 last_n_inputs.erase(last_n_inputs.begin());
                 last_n_inputs.emplace_back("<s>");
                 continue;
-            } else if (continue_punctuation.find(current_input != std::string::npos)) {
+            } else if (continue_punctuation.find(current_input) != std::string::npos) {
                 continue;
             }
             last_n_inputs.emplace_back(current_input);
