@@ -1,13 +1,12 @@
-<s>:i
-i:love
-very:much
-want:to
-to:give
-love:you
-much:and
-you:very
-give:you
-and:i
-i:want
-you:flowers
-flowers:</s>
+<s> i:love
+you very:much
+i love:you
+and i:want
+i want:to
+want to:give
+love you:very
+to give:you
+very much:and
+much and:i
+give you:flowers
+you flowers:</s>
