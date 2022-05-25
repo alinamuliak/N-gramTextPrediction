@@ -24,7 +24,7 @@ std::unordered_map<std::string, std::vector<std::string>> file_to_next_words_map
 
 void string_to_next_words_map_parallel(std::unordered_map<std::string, std::vector<std::string>>& words_map, std::vector<std::string>& words_split, int thread_num, size_t lines_per_thread);
 
-std::vector<std::string> predict_next_word(const std::string& phrase, std::unordered_map<std::string, double>& prob_map, std::unordered_map<std::string, std::vector<std::string>>& next_words_map, int words_n);
+std::vector<std::string> predict_next_word(const std::string& phrase, std::unordered_map<std::string, double>& prob_map, std::unordered_map<std::string, std::vector<std::string>>& next_words_map, size_t words_n);
 
 std::unordered_map<std::string, double> merge_probability(const std::vector<std::unordered_map<std::string, double>>& prob_maps);
 

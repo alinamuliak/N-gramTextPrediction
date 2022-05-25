@@ -215,7 +215,7 @@ int main(int argc, char *argv[]) {
             boost::algorithm::split(ngram_split, ngram, boost::is_any_of("\n"));
 
             size_t n = ngram_split.size();
-            size_t lines_per_thread = std::floor(n / parsed_cfg.pred_threads);
+            size_t lines_per_thread = std::floor(n / parsed_cfg.pred_threads * 2);
 
 
             std::vector<std::thread> processing_flows(parsed_cfg.pred_threads);

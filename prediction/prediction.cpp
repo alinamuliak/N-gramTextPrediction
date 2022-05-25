@@ -34,7 +34,7 @@ std::unordered_map<std::string, double> file_to_probabilities_map(const std::str
 void string_to_probabilities_map_parallel(std::unordered_map<std::string, double>& probabilities_map,
                                           std::vector<std::string>& probabilities_split,
                                           int thread_num, size_t lines_per_thread) {
-    for (size_t i = thread_num * lines_per_thread; i < (thread_num + 1) * lines_per_thread; ++i) {
+    for (size_t i = thread_num * lines_per_thread; i <= (thread_num + 1) * lines_per_thread; ++i) {
         std::vector<std::string> line;
         boost::algorithm::split(line, probabilities_split[i], boost::is_any_of(":"));
         probabilities_map[line[0]] = std::stod(line[1]);
@@ -59,11 +59,9 @@ std::unordered_map<std::string, std::vector<std::string>> file_to_next_words_map
 void string_to_next_words_map_parallel(std::unordered_map<std::string, std::vector<std::string>>& words_map,
                                        std::vector<std::string>& words_split,
                                        int thread_num, size_t lines_per_thread) {
-    for (size_t i = thread_num * lines_per_thread; i < (thread_num + 1) * lines_per_thread; ++i) {
+    for (size_t i = thread_num * lines_per_thread; i <= (thread_num + 1) * lines_per_thread; ++i) {
         std::vector<std::string> line;
-//        fail here:(((((
         boost::algorithm::split(line, words_split[i], boost::is_any_of(":"));
-//        boost::algorithm::split(line, "<s>:i", boost::is_any_of(":"));
         words_map[line[0]].emplace_back(line[1]);
     }
 }
@@ -71,7 +69,7 @@ void string_to_next_words_map_parallel(std::unordered_map<std::string, std::vect
 
 std::vector<std::string> predict_next_word(const std::string &phrase, std::unordered_map<std::string, double> &prob_map,
                                            std::unordered_map<std::string, std::vector<std::string>> &next_words_map,
-                                           int words_n) {
+                                           size_t words_n) {
     auto normalized_phrase = boost::locale::fold_case(boost::locale::normalize(phrase));
     std::vector<std::string> predicted_words;
     if (contains(next_words_map, normalized_phrase)) {
@@ -88,7 +86,7 @@ std::vector<std::string> predict_next_word(const std::string &phrase, std::unord
                     words_probability[index_of_min] = prob_map[current_str];
                     predicted_words[index_of_min] = str;
                 }
-            } else {
+            } else if (std::find(predicted_words.begin(), predicted_words.end(), str) == predicted_words.end()){
                 predicted_words.emplace_back(str);
             }
         }
