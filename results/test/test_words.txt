@@ -1,11 +1,13 @@
 <s> <s>:i
-<s> i:like
-like cats:</s>
-like dogs:</s>
-like cats:very
-cats very: much
-i like:cats
-i like:dogs
-i like:cats
-dogs </s>:<s>
-</s> <s>:hello
+<s> i:love
+you very:much
+i love:you
+and i:want
+i want:to
+want to:give
+love you:very
+to give:you
+very much:and
+much and:i
+give you:flowers
+you flowers:</s>

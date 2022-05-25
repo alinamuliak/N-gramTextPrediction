@@ -63,6 +63,7 @@ params fill_params(std::ifstream &cf) {
     params p{};
     p.index_threads = stoi(map["index_threads"]);
     p.merge_threads = stoi(map["merge_threads"]);
+    p.pred_threads = stoi(map["prediction_threads"]);
     p.indir = map["indir"];
     p.out_prob = map["out_prob"]; //ofile_a
     p.out_ngram = map["out_ngram"];  //ofile_c

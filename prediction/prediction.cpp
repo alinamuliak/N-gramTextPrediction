@@ -2,11 +2,7 @@
 
 
 bool contains(const std::unordered_map<std::string, std::vector<std::string>>& map, const std::string& key) {
-    boost::detail::Sleep(100);
-    if (map.find(key) == map.end()) {
-        return false;
-    }
-    return true;
+    return !(map.find(key) == map.end());
 }
 
 
@@ -35,6 +31,16 @@ std::unordered_map<std::string, double> file_to_probabilities_map(const std::str
     return probabilities_map;
 }
 
+void string_to_probabilities_map_parallel(std::unordered_map<std::string, double>& probabilities_map,
+                                          std::vector<std::string>& probabilities_split,
+                                          int thread_num, size_t lines_per_thread) {
+    for (size_t i = thread_num * lines_per_thread; i <= (thread_num + 1) * lines_per_thread; ++i) {
+        std::vector<std::string> line;
+        boost::algorithm::split(line, probabilities_split[i], boost::is_any_of(":"));
+        probabilities_map[line[0]] = std::stod(line[1]);
+    }
+}
+
 
 std::unordered_map<std::string, std::vector<std::string>> file_to_next_words_map(const std::string& filename) {
     std::unordered_map<std::string, std::vector<std::string>> words_map;
@@ -43,18 +49,27 @@ std::unordered_map<std::string, std::vector<std::string>> file_to_next_words_map
     while (std::getline(infile, line)) {
         std::vector<std::string> result;
         boost::algorithm::split(result, line, boost::is_any_of(":"));
-        if (std::count(words_map[result[0]].begin(), words_map[result[0]].end(), result[1]) == 0) {
-            words_map[result[0]].emplace_back(result[1]);
-        }
+//        if (std::count(words_map[result[0]].begin(), words_map[result[0]].end(), result[1]) == 0) {
+        words_map[result[0]].emplace_back(result[1]);
+//        }
     }
     return words_map;
 }
 
+void string_to_next_words_map_parallel(std::unordered_map<std::string, std::vector<std::string>>& words_map,
+                                       std::vector<std::string>& words_split,
+                                       int thread_num, size_t lines_per_thread) {
+    for (size_t i = thread_num * lines_per_thread; i <= (thread_num + 1) * lines_per_thread; ++i) {
+        std::vector<std::string> line;
+        boost::algorithm::split(line, words_split[i], boost::is_any_of(":"));
+        words_map[line[0]].emplace_back(line[1]);
+    }
+}
 
-std::vector<std::string> predict_next_word(const std::string& phrase, std::unordered_map<std::string, double>& prob_map, std::unordered_map<std::string, std::vector<std::string>>& next_words_map, int words_n) {
+
 std::vector<std::string> predict_next_word(const std::string &phrase, std::unordered_map<std::string, double> &prob_map,
                                            std::unordered_map<std::string, std::vector<std::string>> &next_words_map,
-                                           int words_n) {
+                                           size_t words_n) {
     auto normalized_phrase = boost::locale::fold_case(boost::locale::normalize(phrase));
     std::vector<std::string> predicted_words;
     if (contains(next_words_map, normalized_phrase)) {
@@ -71,7 +86,7 @@ std::vector<std::string> predict_next_word(const std::string &phrase, std::unord
                     words_probability[index_of_min] = prob_map[current_str];
                     predicted_words[index_of_min] = str;
                 }
-            } else {
+            } else if (std::find(predicted_words.begin(), predicted_words.end(), str) == predicted_words.end()){
                 predicted_words.emplace_back(str);
             }
         }
@@ -83,3 +98,26 @@ std::vector<std::string> predict_next_word(const std::string &phrase, std::unord
     return predicted_words;
 }
 
+
+std::unordered_map<std::string, double> merge_probability(const std::vector<std::unordered_map<std::string, double>>& prob_maps) {
+    std::unordered_map<std::string, double> merged;
+    for (const auto & prob_map : prob_maps) {
+        for (const auto& el : prob_map) {
+            merged[el.first] = el.second;
+        }
+    }
+    return merged;
+}
+
+
+std::unordered_map<std::string, std::vector<std::string>> merge_next_words(const std::vector<std::unordered_map<std::string, std::vector<std::string>>>& words_maps) {
+    std::unordered_map<std::string, std::vector<std::string>> merged;
+    for (const auto& words_map : words_maps) {
+        for (const auto& el : words_map) {
+            for (const auto& value : el.second) {
+                merged[el.first].emplace_back(value);
+            }
+        }
+    }
+    return merged;
+}

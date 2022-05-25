@@ -1,0 +1,13 @@
+<s> <s> i:1
+<s> i love:1
+you very much:1
+i love you:1
+and i want:1
+i want to:1
+want to give:1
+love you very:1
+to give you:1
+very much and:1
+much and i:1
+give you flowers:1
+you flowers </s>:1

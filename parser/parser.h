@@ -19,6 +19,7 @@ struct parsed_line {
 struct params {
     int index_threads{};
     int merge_threads{};
+    int pred_threads{};
     string indir;
     string out_prob;
     string out_ngram;
