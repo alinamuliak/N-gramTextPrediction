@@ -14,7 +14,7 @@
 
 std::string get_first_n_words(int n, const std::string& text);
 
-void count_probabilities(std::unordered_map<std::string, double> &prob_map, const std::unordered_map<std::string, int> &phrase_map_n, std::unordered_map<std::string, int> &phrase_map_n_1, int n);
+void count_probabilities(std::unordered_map<std::string, double>& prob_map, const std::unordered_map<std::string, int>& phrase_map_n, std::unordered_map<std::string, int>& phrase_map_n_1, int n);
 
 void make_ngrams(std::unordered_map<std::string, int> &ph_map, std::vector<std::string> &w, int n);
 

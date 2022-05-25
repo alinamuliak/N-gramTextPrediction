@@ -19,10 +19,11 @@ string get_first_n_words(int n, const std::string &text) {
     return result;
 }
 
-void count_probabilities(unordered_map<string, double> &prob_map, const unordered_map<string, int> &phrase_map_n,
+void count_probabilities(unordered_map<string, double>& prob_map, const unordered_map<string, int>& phrase_map_n,
                          unordered_map<string, int> &phrase_map_n_1, int n) {
     for (const auto &el: phrase_map_n) {
         auto first_n_1_words = get_first_n_words(n - 1, el.first);
+//        std::cout << el.first << " : " << static_cast<double>(el.second) << "\t" << first_n_1_words << " : " << static_cast<double>(phrase_map_n_1[first_n_1_words]) << std::endl;
         prob_map[el.first] = static_cast<double>(el.second) / static_cast<double>(phrase_map_n_1[first_n_1_words]);
     }
 }

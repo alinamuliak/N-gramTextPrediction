@@ -108,18 +108,18 @@ int main(int argc, char *argv[]) {
         auto find_time = get_current_time_fenced() - find_time_start;
 
         std::vector<std::thread> main_flows(parsed_cfg.index_threads);
-        std::vector<std::thread> merge_flows(parsed_cfg.merge_threads);
+        std::vector<std::thread> merge_flows(parsed_cfg.merge_threads * 2);
 
 
-        for (int i = 0; i < parsed_cfg.index_threads; i++) {
+        for (int i = 0; i < parsed_cfg.index_threads; ++i) {
             main_flows.emplace_back(index_string, ref(string_que), ref(merge_q_n), ref(merge_q_n_1),
                                     std::ref(parsed_cfg.extensions), parsed_cfg.ngram_par);
         }
-        for (int i = 0; i < parsed_cfg.merge_threads; i++) {
+        for (int i = 0; i < parsed_cfg.merge_threads; ++i) {
             merge_flows.emplace_back(parallel_merge_maps, ref(merge_q_n));
         }
 
-        for (int i = 0; i < parsed_cfg.merge_threads; i++) {
+        for (int i = 0; i < parsed_cfg.merge_threads; ++i) {
             merge_flows.emplace_back(parallel_merge_maps, ref(merge_q_n_1));
         }
 
@@ -161,9 +161,11 @@ int main(int argc, char *argv[]) {
         merge_q_n_1.push_end(unordered_map<string, int>{}, 1, "poison_pill");
 
 
-        for (auto &t: merge_flows)
-            if (t.joinable())
+        for (auto &t: merge_flows) {
+            if (t.joinable()) {
                 t.join();
+            }
+        }
 
         auto f_map_n = merge_q_n.pop().first;
         auto f_map_n_1 = merge_q_n_1.pop().first;
@@ -217,7 +219,7 @@ int main(int argc, char *argv[]) {
             std::vector<std::thread> processing_flows(parsed_cfg.pred_threads);
             std::vector<std::unordered_map<std::string, std::vector<std::string>>> words_maps(parsed_cfg.pred_threads/2 + 1);
             std::vector<std::unordered_map<std::string, double>> probability_maps(parsed_cfg.pred_threads/2 + 1);
-            for (int i = 0; i < std::floor(parsed_cfg.pred_threads/2); i++) {
+            for (int i = 0; i < std::floor(parsed_cfg.pred_threads/2); ++i) {
                 processing_flows.emplace_back(string_to_next_words_map_parallel, ref(words_maps[i]), ngram_split, i, lines_per_thread);
             }
 
