@@ -153,9 +153,11 @@ int main(int argc, char *argv[]) {
 
         auto read_time = get_current_time_fenced() - read_time_start;
 
-        for (auto &t: main_flows)
-            if (t.joinable())
+        for (auto &t: main_flows) {
+            if (t.joinable()) {
                 t.join();
+            }
+        }
 
         merge_q_n.push_end(unordered_map<string, int>{}, 1, "poison_pill");
         merge_q_n_1.push_end(unordered_map<string, int>{}, 1, "poison_pill");

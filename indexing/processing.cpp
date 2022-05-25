@@ -23,7 +23,7 @@ void count_probabilities(unordered_map<string, double>& prob_map, const unordere
                          unordered_map<string, int> &phrase_map_n_1, int n) {
     for (const auto &el: phrase_map_n) {
         auto first_n_1_words = get_first_n_words(n - 1, el.first);
-//        std::cout << el.first << " : " << static_cast<double>(el.second) << "\t" << first_n_1_words << " : " << static_cast<double>(phrase_map_n_1[first_n_1_words]) << std::endl;
+        std::cout << el.first << " : " << static_cast<double>(el.second) << "\t" << first_n_1_words << " : " << static_cast<double>(phrase_map_n_1[first_n_1_words]) << std::endl;
         prob_map[el.first] = static_cast<double>(el.second) / static_cast<double>(phrase_map_n_1[first_n_1_words]);
     }
 }
@@ -64,7 +64,7 @@ count_ngrams(unordered_map<string, int> &phrase_map_n, unordered_map<string, int
         if (words.size() > 1) {
             words.push_back(end);
             make_ngrams(phrase_map_n, words, n);
-            make_ngrams(phrase_map_n, words, n-1);
+            make_ngrams(phrase_map_n_1, words, n-1);
         }
     }
 
