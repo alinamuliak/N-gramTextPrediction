@@ -222,15 +222,17 @@ int main(int argc, char *argv[]) {
             std::vector<std::unordered_map<std::string, std::vector<std::string>>> words_maps(parsed_cfg.pred_threads/2 + 1);
             std::vector<std::unordered_map<std::string, double>> probability_maps(parsed_cfg.pred_threads/2 + 1);
             for (int i = 0; i < std::floor(parsed_cfg.pred_threads/2); ++i) {
-                processing_flows.emplace_back(string_to_next_words_map_parallel, ref(words_maps[i]), ngram_split, i, lines_per_thread);
+                processing_flows.emplace_back(string_to_next_words_map_parallel, ref(words_maps[i]), ref(ngram_split), i, lines_per_thread);
             }
 
             for (int i = 0; i < std::ceil(parsed_cfg.pred_threads/2); ++i) {
-                processing_flows.emplace_back(string_to_probabilities_map_parallel, ref(probability_maps[i]), probabilities_split, i, lines_per_thread);
+                processing_flows.emplace_back(string_to_probabilities_map_parallel, ref(probability_maps[i]), ref(probabilities_split), i, lines_per_thread);
             }
 
-            for (int i = 0; i < parsed_cfg.pred_threads; ++i) {
-                processing_flows[i].join();
+            for (auto& th: processing_flows) {
+                if (th.joinable()) {
+                    th.join();
+                }
             }
 
 //            merge maps

@@ -32,7 +32,7 @@ std::unordered_map<std::string, double> file_to_probabilities_map(const std::str
 }
 
 void string_to_probabilities_map_parallel(std::unordered_map<std::string, double>& probabilities_map,
-                                          const std::vector<std::string>& probabilities_split,
+                                          std::vector<std::string>& probabilities_split,
                                           int thread_num, size_t lines_per_thread) {
     for (size_t i = thread_num * lines_per_thread; i < (thread_num + 1) * lines_per_thread; ++i) {
         std::vector<std::string> line;
@@ -57,11 +57,13 @@ std::unordered_map<std::string, std::vector<std::string>> file_to_next_words_map
 }
 
 void string_to_next_words_map_parallel(std::unordered_map<std::string, std::vector<std::string>>& words_map,
-                                       const std::vector<std::string>& words_split,
+                                       std::vector<std::string>& words_split,
                                        int thread_num, size_t lines_per_thread) {
     for (size_t i = thread_num * lines_per_thread; i < (thread_num + 1) * lines_per_thread; ++i) {
         std::vector<std::string> line;
+//        fail here:(((((
         boost::algorithm::split(line, words_split[i], boost::is_any_of(":"));
+//        boost::algorithm::split(line, "<s>:i", boost::is_any_of(":"));
         words_map[line[0]].emplace_back(line[1]);
     }
 }
