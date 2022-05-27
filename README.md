@@ -57,8 +57,5 @@ allowed_ext = .txt .zip                 # extensions to index (supported only .z
 
 # Contributors:
 - [Alina Muliak](https://github.com/alinamuliak)
-- [Oleksandra Stasiuk](https://github.com/oleksadobush)
 - [Anastasiia Tkachyshyn](https://github.com/tkachyshyn)
-
-
-
+- [Oleksandra Stasiuk](https://github.com/oleksadobush)

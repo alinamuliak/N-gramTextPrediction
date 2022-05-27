@@ -201,23 +201,24 @@ int main(int argc, char *argv[]) {
             prob_map = file_to_probabilities_map(parsed_cfg.out_prob);
             next_words_map = file_to_next_words_map(parsed_cfg.out_ngram);
         } else {
-            // читаємо весь файл і сплітимо по \n
-//            std::ifstream out_prob(parsed_cfg.out_prob);
-//            auto probabilities = std::ostringstream(
-//                    std::ostringstream{} << out_prob.rdbuf()).str();
-//            std::ifstream out_ngram(parsed_cfg.out_ngram);
-//            auto ngram = std::ostringstream(
-//                    std::ostringstream{} << out_ngram.rdbuf()).str();
+//            for Alina's windows
+            std::ifstream out_prob(parsed_cfg.out_prob);
+            auto probabilities = static_cast<std::ostringstream&>(
+                    std::ostringstream{} << out_prob.rdbuf()).str();
+            std::ifstream out_ngram(parsed_cfg.out_ngram);
+            auto ngram = static_cast<std::ostringstream&>(
+                    std::ostringstream{} << out_ngram.rdbuf()).str();
 
-            std::ifstream out_prob(parsed_cfg.out_prob, std::ios::binary);
-            std::ostringstream buffer_ss;
-            buffer_ss << out_prob.rdbuf();
-            std::string probabilities{buffer_ss.str()};
-
-            std::ifstream out_ngram(parsed_cfg.out_ngram, std::ios::binary);
-            std::ostringstream buffer_s;
-            buffer_ss << out_ngram.rdbuf();
-            std::string ngram{buffer_s.str()};
+//            for Sasha's macos
+//            std::ifstream out_prob(parsed_cfg.out_prob, std::ios::binary);
+//            std::ostringstream buffer_ss;
+//            buffer_ss << out_prob.rdbuf();
+//            std::string probabilities{buffer_ss.str()};
+//
+//            std::ifstream out_ngram(parsed_cfg.out_ngram, std::ios::binary);
+//            std::ostringstream buffer_s;
+//            buffer_ss << out_ngram.rdbuf();
+//            std::string ngram{buffer_s.str()};
 
             std::vector<std::string> probabilities_split;
             std::vector<std::string> ngram_split;
@@ -245,7 +246,6 @@ int main(int argc, char *argv[]) {
                 }
             }
 
-//            merge maps
             prob_map = merge_probability(probability_maps);
             next_words_map = merge_next_words(words_maps);
         }
@@ -262,7 +262,7 @@ int main(int argc, char *argv[]) {
         }
         std::string current_input = join(last_n_inputs);
 
-        // для закінчення вводу - ///
+        // exit prediction mode - ///
         while (current_input != "///") {
             auto predicted_words = predict_next_word(join(last_n_inputs), prob_map, next_words_map, parsed_cfg.word_num);
             for (const auto& el: predicted_words) {
@@ -275,9 +275,11 @@ int main(int argc, char *argv[]) {
             boost::trim(current_input);
 
             if (end_punctuation.find(current_input) != std::string::npos) {
-                last_n_inputs.emplace_back("</s>");
                 last_n_inputs.erase(last_n_inputs.begin());
-                last_n_inputs.emplace_back("<s>");
+                n = parsed_cfg.ngram_par - 1;
+                while (n--) {
+                    last_n_inputs.emplace_back("<s>");
+                }
                 continue;
             } else if (continue_punctuation.find(current_input) != std::string::npos) {
                 continue;
