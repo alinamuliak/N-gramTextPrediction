@@ -67,6 +67,7 @@ params fill_params(std::ifstream &cf) {
     p.indir = map["indir"];
     p.out_prob = map["out_prob"]; //ofile_a
     p.out_ngram = map["out_ngram"];  //ofile_c
+    p.dictionary = map["dictionary"];
     p.extensions = map["allowed_ext"];
     p.files_queue_s = stol(map["files_queue_s"]);
     p.strings_queue_s = stol(map["strings_queue_s"]);
