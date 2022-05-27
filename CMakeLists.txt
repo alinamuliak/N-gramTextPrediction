@@ -70,7 +70,7 @@ target_link_libraries(${PROJECT_NAME} Boost::program_options Boost::system Boost
 find_package(Threads REQUIRED)
 target_link_libraries(${PROJECT_NAME} Threads::Threads)
 
-if (APPLE) #??? uncomment for apple :)
+if (APPLE)
 	set(LibArchive_INCLUDE_DIR "/usr/local/opt/libarchive/include")
 endif()
 
