@@ -46,6 +46,8 @@ void count_ngrams(unordered_map<string, int> &phrase_map_n,
     using boost::locale::boundary::ssegment_index;
     string start = "<s>";
     string end = "</s>";
+    string last_one_n;
+    string last_one_n_1;
 
     ssegment_index splitter_one(boost::locale::boundary::sentence, line.begin(), line.end());
     splitter_one.rule(boost::locale::boundary::sentence_any);
@@ -65,8 +67,8 @@ void count_ngrams(unordered_map<string, int> &phrase_map_n,
         }
         if (words.size() > 1) {
             words.push_back(end);
-            make_ngrams(phrase_map_n, words, n);
-            make_ngrams(phrase_map_n_1, words, n-1);
+             make_ngrams(phrase_map_n, words, n);
+             make_ngrams(phrase_map_n_1, words, n - 1);
         }
     }
 

@@ -1,3 +1,7 @@
+flowers are beautiful:</s>
+<s> flowers are:beautiful
+<s> <s> flowers:are
+<s> <s> <s>:flowers
 give you flowers:</s>
 want to give:you
 to give you:flowers
