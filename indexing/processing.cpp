@@ -40,9 +40,9 @@ void make_ngrams(unordered_map<string, int> &ph_map, std::vector<string> &w, int
     }
 }
 
-void
-count_ngrams(unordered_map<string, int> &phrase_map_n, unordered_map<string, int> &phrase_map_n_1, const string &line,
-             int n) {
+void count_ngrams(unordered_map<string, int> &phrase_map_n,
+                  unordered_map<string, int> &phrase_map_n_1,
+                  const string &line, int n) {
     using boost::locale::boundary::ssegment_index;
     string start = "<s>";
     string end = "</s>";
@@ -55,7 +55,10 @@ count_ngrams(unordered_map<string, int> &phrase_map_n, unordered_map<string, int
         splitter.rule(boost::locale::boundary::word_letters);
 
         std::vector<string> words;
-        words.push_back(start);
+        words.reserve(n-1);
+        for (int k=0; k<n-1; k++){
+            words.push_back(start);
+        }
         for (ssegment_index::iterator j = splitter.begin(), k = splitter.end(); j != k; ++j) {
             string word = boost::locale::fold_case(boost::locale::normalize(j->str()));
             words.push_back(word);

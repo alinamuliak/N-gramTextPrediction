@@ -203,10 +203,10 @@ int main(int argc, char *argv[]) {
         } else {
             // читаємо весь файл і сплітимо по \n
             std::ifstream out_prob(parsed_cfg.out_prob);
-            auto probabilities = static_cast<std::ostringstream&>(
+            auto probabilities = std::ostringstream(
                     std::ostringstream{} << out_prob.rdbuf()).str();
             std::ifstream out_ngram(parsed_cfg.out_ngram);
-            auto ngram = static_cast<std::ostringstream&>(
+            auto ngram = std::ostringstream(
                     std::ostringstream{} << out_ngram.rdbuf()).str();
 
             std::vector<std::string> probabilities_split;
