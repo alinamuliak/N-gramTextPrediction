@@ -1,7 +1,0 @@
-/home/vinca/Documents/N-gramTextPrediction-main/cmake-build-debug/CMakeFiles/N-Grams.dir
-/home/vinca/Documents/N-gramTextPrediction-main/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/vinca/Documents/N-gramTextPrediction-main/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/vinca/Documents/N-gramTextPrediction-main/cmake-build-debug/CMakeFiles/list_install_components.dir
-/home/vinca/Documents/N-gramTextPrediction-main/cmake-build-debug/CMakeFiles/install.dir
-/home/vinca/Documents/N-gramTextPrediction-main/cmake-build-debug/CMakeFiles/install/local.dir
-/home/vinca/Documents/N-gramTextPrediction-main/cmake-build-debug/CMakeFiles/install/strip.dir
