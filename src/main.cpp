@@ -133,7 +133,6 @@ int main(int argc, char *argv[]) {
                 break;
             }
 
-            // WHY MACOS WHHYYYYYYYY?!?!?!??!?!??!
             if (file_p.extension() == ".DS_Store") {
                 continue;
             }
@@ -144,7 +143,7 @@ int main(int argc, char *argv[]) {
             std::string buffer{buffer_ss.str()};
 
 
-            // ingore files > 10MB
+            // ignore files > 10MB
             if (buffer.empty() || raw_file.tellg() > 10485760) {
                 continue;
             }
@@ -225,25 +224,27 @@ int main(int argc, char *argv[]) {
             boost::algorithm::split(probabilities_split, probabilities, boost::is_any_of("\n"));
             boost::algorithm::split(ngram_split, ngram, boost::is_any_of("\n"));
 
+            if (ngram_split.size() != probabilities_split.size()) {
+                std::cerr << "Files should be of equal size!" << std::endl;
+                return INVALID_ARGUMENTS;
+            }
             size_t n = ngram_split.size();
-            size_t lines_per_thread = std::floor(n / parsed_cfg.pred_threads * 2);
+            size_t lines_per_thread = std::floor(n / parsed_cfg.pred_threads);
 
 
-            std::vector<std::thread> processing_flows(parsed_cfg.pred_threads);
-            std::vector<std::unordered_map<std::string, std::vector<std::string>>> words_maps(parsed_cfg.pred_threads/2 + 1);
-            std::vector<std::unordered_map<std::string, double>> probability_maps(parsed_cfg.pred_threads/2 + 1);
-            for (int i = 0; i < std::floor(parsed_cfg.pred_threads/2); ++i) {
+            std::vector<std::thread> processing_flows;
+            std::vector<std::unordered_map<std::string, std::vector<std::string>>> words_maps(parsed_cfg.pred_threads);
+            std::vector<std::unordered_map<std::string, double>> probability_maps(parsed_cfg.pred_threads);
+            for (int i = 0; i < parsed_cfg.pred_threads; ++i) {
                 processing_flows.emplace_back(string_to_next_words_map_parallel, ref(words_maps[i]), ref(ngram_split), i, lines_per_thread);
             }
 
-            for (int i = 0; i < std::ceil(parsed_cfg.pred_threads/2); ++i) {
+            for (int i = 0; i < parsed_cfg.pred_threads; ++i) {
                 processing_flows.emplace_back(string_to_probabilities_map_parallel, ref(probability_maps[i]), ref(probabilities_split), i, lines_per_thread);
             }
 
             for (auto& th: processing_flows) {
-                if (th.joinable()) {
-                    th.join();
-                }
+                th.join();
             }
 
             prob_map = merge_probability(probability_maps);
@@ -270,7 +271,7 @@ int main(int argc, char *argv[]) {
             }
             cout << endl;
             last_n_inputs.erase(last_n_inputs.begin());
-            cout << "->\t";
+            cout << "->";
             cin >> current_input;
             boost::trim(current_input);
 
