@@ -1,12 +1,12 @@
 #include "prediction.h"
 
 
-bool contains(const std::unordered_map<std::string, std::vector<std::string>>& map, const std::string& key) {
+bool contains(const std::unordered_map<std::string, std::vector<std::string>> &map, const std::string &key) {
     return !(map.find(key) == map.end());
 }
 
 
-std::string join(const std::vector<std::string>& v) {
+std::string join(const std::vector<std::string> &v) {
     std::string joined_v;
     for (size_t i = 0; i < v.size(); ++i) {
         joined_v += v[i];
@@ -18,7 +18,7 @@ std::string join(const std::vector<std::string>& v) {
 }
 
 
-std::unordered_map<std::string, double> file_to_probabilities_map(const std::string& filename) {
+std::unordered_map<std::string, double> file_to_probabilities_map(const std::string &filename) {
     std::fstream infile(filename);
     std::unordered_map<std::string, double> probabilities_map;
 
@@ -32,8 +32,8 @@ std::unordered_map<std::string, double> file_to_probabilities_map(const std::str
     return probabilities_map;
 }
 
-void string_to_probabilities_map_parallel(tbb::concurrent_hash_map<std::string, double>& probabilities_map,
-                                          std::vector<std::string>& probabilities_split,
+void string_to_probabilities_map_parallel(tbb::concurrent_hash_map<std::string, double> &probabilities_map,
+                                          std::vector<std::string> &probabilities_split,
                                           size_t thread_num, size_t lines_per_thread) {
     for (size_t i = thread_num * lines_per_thread; i <= (thread_num + 1) * lines_per_thread; ++i) {
         std::vector<std::string> line;
@@ -47,8 +47,8 @@ void string_to_probabilities_map_parallel(tbb::concurrent_hash_map<std::string, 
     }
 }
 
-void string_to_next_words_map_parallel(tbb::concurrent_hash_map<std::string, std::vector<std::string>>& words_map,
-                                       std::vector<std::string>& words_split,
+void string_to_next_words_map_parallel(tbb::concurrent_hash_map<std::string, std::vector<std::string>> &words_map,
+                                       std::vector<std::string> &words_split,
                                        size_t thread_num, size_t lines_per_thread) {
     auto from = thread_num * lines_per_thread;
     std::cout << "die" << std::endl;
@@ -67,7 +67,7 @@ void string_to_next_words_map_parallel(tbb::concurrent_hash_map<std::string, std
     }
 }
 
-std::unordered_map<std::string, std::vector<std::string>> file_to_next_words_map(const std::string& filename) {
+std::unordered_map<std::string, std::vector<std::string>> file_to_next_words_map(const std::string &filename) {
     std::unordered_map<std::string, std::vector<std::string>> words_map;
     std::ifstream infile(filename);
     std::string line;
@@ -89,9 +89,9 @@ std::vector<std::string> predict_next_word(const std::string &phrase, std::unord
 
     std::cout << normalized_phrase << std::endl;
 
-    if (contains(next_words_map, normalized_phrase)){
+    if (contains(next_words_map, normalized_phrase)) {
         std::vector<double> words_probability(words_n);
-        for (const auto& str: next_words_map[normalized_phrase]) {
+        for (const auto &str: next_words_map[normalized_phrase]) {
             std::string current_str = normalized_phrase.append(" ").append(str);
 
             if (predicted_words.size() >= words_n) {
@@ -101,25 +101,25 @@ std::vector<std::string> predict_next_word(const std::string &phrase, std::unord
                     auto index_of_min = std::find(words_probability.begin(), words_probability.end(), min_prob) -
                                         words_probability.begin();
                     words_probability[index_of_min] = prob_map[current_str];
-                    if(str != "<unk>")
+                    if (str != "<unk>")
                         predicted_words[index_of_min] = str;
                 }
-            } else if (std::find(predicted_words.begin(), predicted_words.end(), str) == predicted_words.end()){
-                if(str != "<unk>") predicted_words.emplace_back(str);
+            } else if (std::find(predicted_words.begin(), predicted_words.end(), str) == predicted_words.end()) {
+                if (str != "<unk>") predicted_words.emplace_back(str);
             }
         }
-    }
-    else {
+    } else {
         return predicted_words;
     }
     return predicted_words;
 }
 
 
-std::unordered_map<std::string, double> merge_probability(const std::vector<std::unordered_map<std::string, double>>& prob_maps) {
+std::unordered_map<std::string, double>
+merge_probability(const std::vector<std::unordered_map<std::string, double>> &prob_maps) {
     std::unordered_map<std::string, double> merged;
-    for (const auto & prob_map : prob_maps) {
-        for (const auto& el : prob_map) {
+    for (const auto &prob_map: prob_maps) {
+        for (const auto &el: prob_map) {
             merged[el.first] = el.second;
         }
     }
@@ -127,11 +127,12 @@ std::unordered_map<std::string, double> merge_probability(const std::vector<std:
 }
 
 
-std::unordered_map<std::string, std::vector<std::string>> merge_next_words(const std::vector<std::unordered_map<std::string, std::vector<std::string>>>& words_maps) {
+std::unordered_map<std::string, std::vector<std::string>>
+merge_next_words(const std::vector<std::unordered_map<std::string, std::vector<std::string>>> &words_maps) {
     std::unordered_map<std::string, std::vector<std::string>> merged;
-    for (const auto& words_map : words_maps) {
-        for (const auto& el : words_map) {
-            for (const auto& value : el.second) {
+    for (const auto &words_map: words_maps) {
+        for (const auto &el: words_map) {
+            for (const auto &value: el.second) {
                 merged[el.first].emplace_back(value);
             }
         }

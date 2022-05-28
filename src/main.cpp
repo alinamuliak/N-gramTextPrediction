@@ -28,11 +28,13 @@ using std::unordered_map;
 using std::filesystem::path;
 
 
-void write_to_file(const std::unordered_map<std::string, double> &m, std::ofstream &prob, std::ofstream &next_words, int n) {
+void
+write_to_file(const std::unordered_map<std::string, double> &m, std::ofstream &prob, std::ofstream &next_words, int n) {
     for (auto &p: m) {
         prob << p.first << ":" << p.second << std::endl;
 
-        next_words << get_first_n_words(n - 1, p.first) << ":" << p.first.substr(p.first.find_last_of(' ') + 1) << std::endl;
+        next_words << get_first_n_words(n - 1, p.first) << ":" << p.first.substr(p.first.find_last_of(' ') + 1)
+                   << std::endl;
     }
 }
 
@@ -87,7 +89,7 @@ int main(int argc, char *argv[]) {
     }
 
     std::unordered_map<std::string, int> dict_eng = file_to_dictionary(parsed_cfg.dictionary);
-    cout << dict_eng.size() << endl;
+//    cout << dict_eng.size() << endl;
 
 
     //    ------------------- MAIN PART --------------------
@@ -141,7 +143,7 @@ int main(int argc, char *argv[]) {
 
             // WHY MACOS WHHYYYYYYYY?!?!?!??!?!??!
             if (file_p.extension() == ".DS_Store") {
-            
+
                 continue;
             }
 
@@ -177,7 +179,6 @@ int main(int argc, char *argv[]) {
 
         auto f_map_n = merge_q_n.pop().first;
         auto f_map_n_1 = merge_q_n_1.pop().first;
-
 
 
         auto full_time = get_current_time_fenced() - full_time_start;
@@ -251,14 +252,16 @@ int main(int argc, char *argv[]) {
 //            std::vector<std::unordered_map<std::string, std::vector<std::string>>> words_maps(parsed_cfg.pred_threads/2 + 1);
 //            std::vector<std::unordered_map<std::string, double>> probability_maps(parsed_cfg.pred_threads/2 + 1);
             for (size_t i = 0; i < parsed_cfg.pred_threads; ++i) {
-                processing_flows.emplace_back(string_to_next_words_map_parallel, ref(words_maps), ref(ngram_split), i, lines_per_thread);
+                processing_flows.emplace_back(string_to_next_words_map_parallel, ref(words_maps), ref(ngram_split), i,
+                                              lines_per_thread);
             }
 
             for (size_t i = 0; i < parsed_cfg.pred_threads; ++i) {
-                processing_flows.emplace_back(string_to_probabilities_map_parallel, ref(probability_maps), ref(probabilities_split), i, lines_per_thread);
+                processing_flows.emplace_back(string_to_probabilities_map_parallel, ref(probability_maps),
+                                              ref(probabilities_split), i, lines_per_thread);
             }
 
-            for (auto& th: processing_flows) {
+            for (auto &th: processing_flows) {
                 if (th.joinable()) {
                     th.join();
                 }
@@ -283,20 +286,20 @@ int main(int argc, char *argv[]) {
 
         // для закінчення вводу - ///
         while (current_input != "///") {
-            auto predicted_words = predict_next_word(join(last_n_inputs), prob_map, next_words_map, parsed_cfg.word_num);
+            auto predicted_words = predict_next_word(join(last_n_inputs), prob_map, next_words_map,
+                                                     parsed_cfg.word_num);
 
-            if (predicted_words.size() == 0 && last_n_inputs != std::vector <std::string> {"<s>", "<s>"}){
+            if (predicted_words.empty() && last_n_inputs != std::vector<std::string>{"<s>", "<s>"}) {
 
-                if (last_n_inputs[last_n_inputs.size() - 2] != "<s>"){
+                if (last_n_inputs[last_n_inputs.size() - 2] != "<s>") {
                     std::fill(last_n_inputs.begin(), last_n_inputs.end() - 1, "<s>");
-                }
-                else{
+                } else {
 
                 }
                 continue;
             }
 
-            for (const auto& el: predicted_words) {
+            for (const auto &el: predicted_words) {
                 cout << el << " ";
             }
             cout << endl;
@@ -306,7 +309,7 @@ int main(int argc, char *argv[]) {
             boost::trim(current_input);
 
 
-            if (dict_eng.find(current_input) == dict_eng.end()){
+            if (dict_eng.find(current_input) == dict_eng.end()) {
                 current_input = "<unk>";
             }
 

@@ -19,7 +19,7 @@ string get_first_n_words(int n, const std::string &text) {
     return result;
 }
 
-void count_probabilities(unordered_map<string, double>& prob_map, const unordered_map<string, int>& phrase_map_n,
+void count_probabilities(unordered_map<string, double> &prob_map, const unordered_map<string, int> &phrase_map_n,
                          unordered_map<string, int> &phrase_map_n_1, int n) {
     for (const auto &el: phrase_map_n) {
         auto first_n_1_words = get_first_n_words(n - 1, el.first);
@@ -40,7 +40,9 @@ void make_ngrams(unordered_map<string, int> &ph_map, std::vector<string> &w, int
     }
 }
 
-void count_ngrams(unordered_map<string, int> &phrase_map_n, unordered_map<string, int> &phrase_map_n_1, const string &line, std::unordered_map<std::string, int> dict_eng,
+void
+count_ngrams(unordered_map<string, int> &phrase_map_n, unordered_map<string, int> &phrase_map_n_1, const string &line,
+             std::unordered_map<std::string, int> dict_eng,
              int n) {
     using boost::locale::boundary::ssegment_index;
     string start = "<s>";
@@ -58,8 +60,8 @@ void count_ngrams(unordered_map<string, int> &phrase_map_n, unordered_map<string
         splitter.rule(boost::locale::boundary::word_letters);
 
         std::vector<string> words;
-        words.reserve(n-1);
-        for (int k=0; k<n-1; k++){
+        words.reserve(n - 1);
+        for (int k = 0; k < n - 1; k++) {
             words.push_back(start);
         }
         for (ssegment_index::iterator j = splitter.begin(), k = splitter.end(); j != k; ++j) {
@@ -74,19 +76,18 @@ void count_ngrams(unordered_map<string, int> &phrase_map_n, unordered_map<string
 
             make_ngrams(word_map, words, 1);
 
-            for (const auto &el: word_map){
-                if (dict_eng.find(el.first) == dict_eng.end() && el.first != "<s>" && el.first != "</s>"){
+            for (const auto &el: word_map) {
+                if (dict_eng.find(el.first) == dict_eng.end() && el.first != "<s>" && el.first != "</s>") {
                     std::replace(words.begin(), words.end(), el.first, std::string("<unk>"));
                     unk++;
-                }
-                else{
+                } else {
                     known++;
                 }
             }
 
 
             make_ngrams(phrase_map_n, words, n);
-            make_ngrams(phrase_map_n_1, words, n-1);
+            make_ngrams(phrase_map_n_1, words, n - 1);
         }
     }
 
@@ -119,7 +120,8 @@ void parallel_merge_maps(safe_que<unordered_map<string, int>> &mer_q) {
 }
 
 void index_string(safe_que<string> &queue, safe_que<unordered_map<string, int>> &merge_q_n,
-                  safe_que<unordered_map<string, int>> &merge_q_n_1, std::unordered_map<std::string, int> dict_eng, const string &ext, int n) {
+                  safe_que<unordered_map<string, int>> &merge_q_n_1,
+                  const std::unordered_map<std::string, int> &dict_eng, const string &ext, int n) {
     auto buff = static_cast<char *>(::operator new(11000000));
 
     for (;;) {
@@ -170,15 +172,13 @@ void index_string(safe_que<string> &queue, safe_que<unordered_map<string, int>> 
     ::operator delete(buff);
 }
 
-std::unordered_map<std::string, int>  file_to_dictionary(const std::string& fileName)
-{
+std::unordered_map<std::string, int> file_to_dictionary(const std::string &fileName) {
     std::ifstream in(fileName);
     std::unordered_map<std::string, int> dict_eng;
 
     std::string str;
-    while (in >> str)
-    {
-        if(str.size() > 0) {
+    while (in >> str) {
+        if (str.size() > 0) {
             dict_eng.insert({str, 1});
         }
     }
