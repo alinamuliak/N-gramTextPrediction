@@ -14,6 +14,7 @@
 #include "../parser/parser.h"
 #include "../indexing/processing.h"
 #include "../prediction/prediction.h"
+#include "oneapi/tbb/concurrent_hash_map.h"
 #include "main.h"
 
 
@@ -227,16 +228,21 @@ int main(int argc, char *argv[]) {
             size_t n = ngram_split.size();
             size_t lines_per_thread = std::floor(n / parsed_cfg.pred_threads * 2);
 
+            // GLOBAL MAP
+            tbb::concurrent_hash_map<std::string, std::vector<std::string>> words_maps;
+
+            tbb::concurrent_hash_map<std::string, double> probability_maps;
+
 
             std::vector<std::thread> processing_flows(parsed_cfg.pred_threads);
-            std::vector<std::unordered_map<std::string, std::vector<std::string>>> words_maps(parsed_cfg.pred_threads/2 + 1);
-            std::vector<std::unordered_map<std::string, double>> probability_maps(parsed_cfg.pred_threads/2 + 1);
+//            std::vector<std::unordered_map<std::string, std::vector<std::string>>> words_maps(parsed_cfg.pred_threads/2 + 1);
+//            std::vector<std::unordered_map<std::string, double>> probability_maps(parsed_cfg.pred_threads/2 + 1);
             for (int i = 0; i < std::floor(parsed_cfg.pred_threads/2); ++i) {
-                processing_flows.emplace_back(string_to_next_words_map_parallel, ref(words_maps[i]), ref(ngram_split), i, lines_per_thread);
+                processing_flows.emplace_back(string_to_next_words_map_parallel, ref(words_maps), ref(ngram_split), i, lines_per_thread);
             }
 
             for (int i = 0; i < std::ceil(parsed_cfg.pred_threads/2); ++i) {
-                processing_flows.emplace_back(string_to_probabilities_map_parallel, ref(probability_maps[i]), ref(probabilities_split), i, lines_per_thread);
+                processing_flows.emplace_back(string_to_probabilities_map_parallel, ref(probability_maps), ref(probabilities_split), i, lines_per_thread);
             }
 
             for (auto& th: processing_flows) {
@@ -246,8 +252,8 @@ int main(int argc, char *argv[]) {
             }
 
 //            merge maps
-            prob_map = merge_probability(probability_maps);
-            next_words_map = merge_next_words(words_maps);
+//            prob_map = merge_probability(probability_maps);
+//            next_words_map = merge_next_words(words_maps);
         }
 
         auto prediction_time = get_current_time_fenced() - prediction_time_start;
