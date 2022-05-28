@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
     if (argc >= 2) {
         filename = argv[1];
     } else if (argc == 1) {
-        filename = "./index.cfg";
+        filename = "/home/vinca/Documents/N-gramTextPrediction-main/index.cfg";
     } else {
         std::cerr << "ERROR wrong amount of arguments" << endl;
         return WRONG_AMOUNT_OF_ARGUMENTS;
@@ -86,6 +86,10 @@ int main(int argc, char *argv[]) {
         return ERROR_IN_CONFIG_FILE;
     }
 
+    std::unordered_map<std::string, int> dict_eng = file_to_dictionary(parsed_cfg.dictionary);
+    cout << dict_eng.size() << endl;
+
+
     //    ------------------- MAIN PART --------------------
 
     if (parsed_cfg.option == 0) {
@@ -93,6 +97,7 @@ int main(int argc, char *argv[]) {
         safe_que<string> string_que(parsed_cfg.strings_queue_s);
         safe_que<unordered_map<string, int>> merge_q_n(parsed_cfg.merge_queue_s, true);
         safe_que<unordered_map<string, int>> merge_q_n_1(parsed_cfg.merge_queue_s, true);
+
 
         // pills
         path empty_p;
@@ -113,7 +118,7 @@ int main(int argc, char *argv[]) {
 
 
         for (int i = 0; i < parsed_cfg.index_threads; ++i) {
-            main_flows.emplace_back(index_string, ref(string_que), ref(merge_q_n), ref(merge_q_n_1),
+            main_flows.emplace_back(index_string, ref(string_que), ref(merge_q_n), ref(merge_q_n_1), ref(dict_eng),
                                     std::ref(parsed_cfg.extensions), parsed_cfg.ngram_par);
         }
         for (int i = 0; i < parsed_cfg.merge_threads; ++i) {
@@ -136,6 +141,7 @@ int main(int argc, char *argv[]) {
 
             // WHY MACOS WHHYYYYYYYY?!?!?!??!?!??!
             if (file_p.extension() == ".DS_Store") {
+            
                 continue;
             }
 
@@ -163,7 +169,6 @@ int main(int argc, char *argv[]) {
         merge_q_n.push_end(unordered_map<string, int>{}, 1, "poison_pill");
         merge_q_n_1.push_end(unordered_map<string, int>{}, 1, "poison_pill");
 
-
         for (auto &t: merge_flows) {
             if (t.joinable()) {
                 t.join();
@@ -173,15 +178,27 @@ int main(int argc, char *argv[]) {
         auto f_map_n = merge_q_n.pop().first;
         auto f_map_n_1 = merge_q_n_1.pop().first;
 
+
+
         auto full_time = get_current_time_fenced() - full_time_start;
 
         auto write_time_start = get_current_time_fenced();
 
         unordered_map<string, double> prob_map;
         count_probabilities(prob_map, f_map_n, f_map_n_1, parsed_cfg.ngram_par);
+
+
         std::ofstream of_prob(parsed_cfg.out_prob);
         std::ofstream of_next_words(parsed_cfg.out_ngram);
         write_to_file(prob_map, of_prob, of_next_words, parsed_cfg.ngram_par);
+
+//        int g = 0;
+//        for (auto const& i : prob_map) {
+//            if (i.second < 0.00046) {
+//                std::cout << i.first << " " << i.second << std::endl;
+//                g++;
+//            }
+//        }
 
         auto write_time = get_current_time_fenced() - write_time_start;
 
@@ -267,6 +284,18 @@ int main(int argc, char *argv[]) {
         // для закінчення вводу - ///
         while (current_input != "///") {
             auto predicted_words = predict_next_word(join(last_n_inputs), prob_map, next_words_map, parsed_cfg.word_num);
+
+            if (predicted_words.size() == 0 && last_n_inputs != std::vector <std::string> {"<s>", "<s>"}){
+
+                if (last_n_inputs[last_n_inputs.size() - 2] != "<s>"){
+                    std::fill(last_n_inputs.begin(), last_n_inputs.end() - 1, "<s>");
+                }
+                else{
+
+                }
+                continue;
+            }
+
             for (const auto& el: predicted_words) {
                 cout << el << " ";
             }
@@ -275,6 +304,11 @@ int main(int argc, char *argv[]) {
             cout << "->\t";
             cin >> current_input;
             boost::trim(current_input);
+
+
+            if (dict_eng.find(current_input) == dict_eng.end()){
+                current_input = "<unk>";
+            }
 
             if (end_punctuation.find(current_input) != std::string::npos) {
                 last_n_inputs.emplace_back("</s>");

@@ -24,6 +24,7 @@ std::unordered_map<std::string, double> file_to_probabilities_map(const std::str
 
     std::string line;
     while (std::getline(infile, line)) {
+        std::cout << line << std::endl;
         std::vector<std::string> result;
         boost::algorithm::split(result, line, boost::is_any_of(":"));
         probabilities_map[result[0]] = std::stod(result[1]);
@@ -85,7 +86,10 @@ std::vector<std::string> predict_next_word(const std::string &phrase, std::unord
     auto normalized_phrase = boost::locale::fold_case(boost::locale::normalize(phrase));
 
     std::vector<std::string> predicted_words;
-    if (contains(next_words_map, normalized_phrase)) {
+
+    std::cout << normalized_phrase << std::endl;
+
+    if (contains(next_words_map, normalized_phrase)){
         std::vector<double> words_probability(words_n);
         for (const auto& str: next_words_map[normalized_phrase]) {
             std::string current_str = normalized_phrase.append(" ").append(str);
@@ -97,16 +101,16 @@ std::vector<std::string> predict_next_word(const std::string &phrase, std::unord
                     auto index_of_min = std::find(words_probability.begin(), words_probability.end(), min_prob) -
                                         words_probability.begin();
                     words_probability[index_of_min] = prob_map[current_str];
-                    predicted_words[index_of_min] = str;
+                    if(str != "<unk>")
+                        predicted_words[index_of_min] = str;
                 }
             } else if (std::find(predicted_words.begin(), predicted_words.end(), str) == predicted_words.end()){
-                predicted_words.emplace_back(str);
+                if(str != "<unk>") predicted_words.emplace_back(str);
             }
         }
-    } else {
-        // todo: ну тут має пропонуватися слова після <UNK> або рандомні,
-        //     головне хоч щось
-        std::cout << "Can't predict words for it yet :(";
+    }
+    else {
+        return predicted_words;
     }
     return predicted_words;
 }

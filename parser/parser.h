@@ -23,6 +23,7 @@ struct params {
     string indir;
     string out_prob;
     string out_ngram;
+    string dictionary;
     string extensions;
     size_t files_queue_s;
     size_t strings_queue_s;

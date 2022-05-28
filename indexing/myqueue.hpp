@@ -71,7 +71,7 @@ public:
         cv_popped.notify_one();
 
         curr_q_size -= a.size;
-        return std::pair(std::move(a.content), a.type);
+        return std::pair<T, std::string>(std::move(a.content), a.type);
     }
 
     size_t get_size() const {
