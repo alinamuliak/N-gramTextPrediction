@@ -110,29 +110,3 @@ std::vector<std::string> predict_next_word(const std::string &phrase, std::unord
     }
     return predicted_words;
 }
-
-
-std::unordered_map<std::string, double>
-merge_probability(const std::vector<std::unordered_map<std::string, double>> &prob_maps) {
-    std::unordered_map<std::string, double> merged;
-    for (const auto &prob_map: prob_maps) {
-        for (const auto &el: prob_map) {
-            merged[el.first] = el.second;
-        }
-    }
-    return merged;
-}
-
-
-std::unordered_map<std::string, std::vector<std::string>>
-merge_next_words(const std::vector<std::unordered_map<std::string, std::vector<std::string>>> &words_maps) {
-    std::unordered_map<std::string, std::vector<std::string>> merged;
-    for (const auto &words_map: words_maps) {
-        for (const auto &el: words_map) {
-            for (const auto &value: el.second) {
-                merged[el.first].emplace_back(value);
-            }
-        }
-    }
-    return merged;
-}

@@ -21,8 +21,7 @@ void count_probabilities(std::unordered_map<std::string, double> &prob_map,
 
 void make_ngrams(std::unordered_map<std::string, int> &ph_map, std::vector<std::string> &w, int n);
 
-void
-count_ngrams(std::unordered_map<std::string, int> &phrase_map_n, std::unordered_map<std::string, int> &phrase_map_n_1,
+void count_ngrams(std::unordered_map<std::string, int> &phrase_map_n, std::unordered_map<std::string, int> &phrase_map_n_1,
              std::unordered_map<std::string, int> dict_eng, const std::string &line);
 
 void parallel_merge_maps(safe_que<std::unordered_map<std::string, int>> &mer_q);

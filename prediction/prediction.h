@@ -32,9 +32,4 @@ void string_to_next_words_map_parallel(tbb::concurrent_hash_map<std::string, std
 std::vector<std::string> predict_next_word(const std::string &phrase, std::unordered_map<std::string, double> &prob_map,
                                            std::unordered_map<std::string, std::vector<std::string>> &next_words_map,
                                            size_t words_n);
-
-//std::unordered_map<std::string, double> merge_probability(const std::vector<std::unordered_map<std::string, double>>& prob_maps);
-//
-//std::unordered_map<std::string, std::vector<std::string>> merge_next_words(const std::vector<std::unordered_map<std::string, std::vector<std::string>>>& words_maps);
-
 #endif //N_GRAMS_PREDICTION_H

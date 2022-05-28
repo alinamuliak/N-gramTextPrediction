@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
         ERROR_IN_CONFIG_FILE
     };
 
-//    -------------- ARGUMENT VALIDATION --------------
+////    -------------- ARGUMENT VALIDATION --------------
 
     if (argc < 1) {
         std::cerr << "ERROR: wrong amount of arguments" << endl;
@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
     std::unordered_map<std::string, int> dict_eng = file_to_dictionary(parsed_cfg.dictionary);
 
 
-    //    ------------------- MAIN PART --------------------
+    ////    ------------------- MAIN PART --------------------
 
     if (parsed_cfg.option == 0) {
         safe_que<path> files_que(parsed_cfg.files_queue_s);
@@ -140,7 +140,6 @@ int main(int argc, char *argv[]) {
                 break;
             }
 
-            // WHY MACOS WHHYYYYYYYY?!?!?!??!?!??!
             if (file_p.extension() == ".DS_Store") {
 
                 continue;
@@ -152,7 +151,7 @@ int main(int argc, char *argv[]) {
             std::string buffer{buffer_ss.str()};
 
 
-            // ingore files > 10MB
+            // ignore files > 10MB
             if (buffer.empty() || raw_file.tellg() > 10485760) {
                 continue;
             }
@@ -192,14 +191,6 @@ int main(int argc, char *argv[]) {
         std::ofstream of_next_words(parsed_cfg.out_ngram);
         write_to_file(prob_map, of_prob, of_next_words, parsed_cfg.ngram_par);
 
-//        int g = 0;
-//        for (auto const& i : prob_map) {
-//            if (i.second < 0.00046) {
-//                std::cout << i.first << " " << i.second << std::endl;
-//                g++;
-//            }
-//        }
-
         auto write_time = get_current_time_fenced() - write_time_start;
 
         cout << "Done! <3" << endl;
@@ -219,7 +210,7 @@ int main(int argc, char *argv[]) {
         } else {
             prob_map = file_to_probabilities_map(parsed_cfg.out_prob);
             next_words_map = file_to_next_words_map(parsed_cfg.out_ngram);
-            // читаємо весь файл і сплітимо по \n
+            // read and split by \n
 
             std::ifstream out_prob(parsed_cfg.out_prob, std::ios::binary);
             std::ostringstream buffer_ss;
@@ -248,8 +239,6 @@ int main(int argc, char *argv[]) {
 
             std::vector<std::thread> processing_flows(parsed_cfg.pred_threads);
 
-//            std::vector<std::unordered_map<std::string, std::vector<std::string>>> words_maps(parsed_cfg.pred_threads/2 + 1);
-//            std::vector<std::unordered_map<std::string, double>> probability_maps(parsed_cfg.pred_threads/2 + 1);
             for (size_t i = 0; i < parsed_cfg.pred_threads; ++i) {
                 processing_flows.emplace_back(string_to_next_words_map_parallel, ref(words_maps), ref(ngram_split), i,
                                               lines_per_thread);
@@ -266,9 +255,6 @@ int main(int argc, char *argv[]) {
                 }
             }
 
-//            merge maps
-//            prob_map = merge_probability(probability_maps);
-//            next_words_map = merge_next_words(words_maps);
         }
 
         auto prediction_time = get_current_time_fenced() - prediction_time_start;
