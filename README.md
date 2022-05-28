@@ -83,6 +83,7 @@ allowed_ext = .txt .zip                 # extensions to index (supported only .z
 2. Set the desired attributes in `.cfg` file.
 3. Train the model:
     - compile the program with `./compile.sh -O`
+    - go to the `bin` directory
     - run `./N-Grams ../index.cfg`
 
    where the argument is the path to `.cfg` file.
