@@ -199,9 +199,9 @@ int main(int argc, char *argv[]) {
 
         auto prediction_time_start = get_current_time_fenced();
         if (parsed_cfg.pred_threads == 0) {
+        } else {
             prob_map = file_to_probabilities_map(parsed_cfg.out_prob);
             next_words_map = file_to_next_words_map(parsed_cfg.out_ngram);
-        } else {
             // читаємо весь файл і сплітимо по \n
 //            std::ifstream out_prob(parsed_cfg.out_prob);
 //            auto probabilities = std::ostringstream(
@@ -217,31 +217,33 @@ int main(int argc, char *argv[]) {
 
             std::ifstream out_ngram(parsed_cfg.out_ngram, std::ios::binary);
             std::ostringstream buffer_s;
-            buffer_ss << out_ngram.rdbuf();
+            buffer_s << out_ngram.rdbuf();
             std::string ngram{buffer_s.str()};
 
             std::vector<std::string> probabilities_split;
             std::vector<std::string> ngram_split;
             boost::algorithm::split(probabilities_split, probabilities, boost::is_any_of("\n"));
             boost::algorithm::split(ngram_split, ngram, boost::is_any_of("\n"));
+            ngram_split.pop_back();
+            probabilities_split.pop_back();
 
             size_t n = ngram_split.size();
-            size_t lines_per_thread = std::floor(n / parsed_cfg.pred_threads * 2);
+            size_t lines_per_thread = std::floor(n / parsed_cfg.pred_threads);
 
             // GLOBAL MAP
             tbb::concurrent_hash_map<std::string, std::vector<std::string>> words_maps;
-
             tbb::concurrent_hash_map<std::string, double> probability_maps;
 
 
             std::vector<std::thread> processing_flows(parsed_cfg.pred_threads);
+
 //            std::vector<std::unordered_map<std::string, std::vector<std::string>>> words_maps(parsed_cfg.pred_threads/2 + 1);
 //            std::vector<std::unordered_map<std::string, double>> probability_maps(parsed_cfg.pred_threads/2 + 1);
-            for (int i = 0; i < std::floor(parsed_cfg.pred_threads/2); ++i) {
+            for (size_t i = 0; i < parsed_cfg.pred_threads; ++i) {
                 processing_flows.emplace_back(string_to_next_words_map_parallel, ref(words_maps), ref(ngram_split), i, lines_per_thread);
             }
 
-            for (int i = 0; i < std::ceil(parsed_cfg.pred_threads/2); ++i) {
+            for (size_t i = 0; i < parsed_cfg.pred_threads; ++i) {
                 processing_flows.emplace_back(string_to_probabilities_map_parallel, ref(probability_maps), ref(probabilities_split), i, lines_per_thread);
             }
 

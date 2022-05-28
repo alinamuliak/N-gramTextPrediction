@@ -33,17 +33,38 @@ std::unordered_map<std::string, double> file_to_probabilities_map(const std::str
 
 void string_to_probabilities_map_parallel(tbb::concurrent_hash_map<std::string, double>& probabilities_map,
                                           std::vector<std::string>& probabilities_split,
-                                          int thread_num, size_t lines_per_thread) {
+                                          size_t thread_num, size_t lines_per_thread) {
     for (size_t i = thread_num * lines_per_thread; i <= (thread_num + 1) * lines_per_thread; ++i) {
         std::vector<std::string> line;
         boost::algorithm::split(line, probabilities_split[i], boost::is_any_of(":"));
 
         oneapi::tbb::concurrent_hash_map<std::string, double>::accessor a;
-        probabilities_map.insert(a, line[0]);
-        a->second = std::stod(line[1]);
+        if (line.size() != 1) {
+            probabilities_map.insert(a, line[0].data());
+            a->second = std::stod(line[1].data());
+        }
     }
 }
 
+void string_to_next_words_map_parallel(tbb::concurrent_hash_map<std::string, std::vector<std::string>>& words_map,
+                                       std::vector<std::string>& words_split,
+                                       size_t thread_num, size_t lines_per_thread) {
+    auto from = thread_num * lines_per_thread;
+    std::cout << "die" << std::endl;
+    auto to = (thread_num + 1) * lines_per_thread;
+    std::unordered_map<std::string, std::vector<std::string>> m;
+    for (size_t i = from; i < to; ++i) {
+        std::vector<std::string> line;
+        boost::algorithm::split(line, words_split[i], boost::is_any_of(":"));
+
+        oneapi::tbb::concurrent_hash_map<std::string, std::vector<std::string>>::accessor a;
+
+        m[line[0]].emplace_back(line[1]);
+        words_map.insert(a, line[0].data());
+
+        a->second.emplace_back(line[1].data());
+    }
+}
 
 std::unordered_map<std::string, std::vector<std::string>> file_to_next_words_map(const std::string& filename) {
     std::unordered_map<std::string, std::vector<std::string>> words_map;
@@ -57,19 +78,6 @@ std::unordered_map<std::string, std::vector<std::string>> file_to_next_words_map
 //        }
     }
     return words_map;
-}
-
-void string_to_next_words_map_parallel(tbb::concurrent_hash_map<std::string, std::vector<std::string>>& words_map,
-                                       std::vector<std::string>& words_split,
-                                       int thread_num, size_t lines_per_thread) {
-    for (size_t i = thread_num * lines_per_thread; i <= (thread_num + 1) * lines_per_thread; ++i) {
-        std::vector<std::string> line;
-        boost::algorithm::split(line, words_split[i], boost::is_any_of(":"));
-
-        oneapi::tbb::concurrent_hash_map<std::string, std::vector<std::string>>::accessor a;
-        words_map.insert(a, line[0]);
-        a->second.emplace_back(line[1]);
-    }
 }
 
 

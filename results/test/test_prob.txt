@@ -1,17 +1,17 @@
-flowers are beautiful </s>:1
-<s> flowers are beautiful:1
-<s> <s> flowers are:1
-<s> <s> <s> flowers:0.5
-give you flowers </s>:1
-want to give you:1
-to give you flowers:1
-i want to give:1
-and i want to:1
-much and i want:1
-you very much and:1
-<s> i love you:1
-very much and i:1
-i love you very:1
-love you very much:1
-<s> <s> i love:1
-<s> <s> <s> i:0.5
+flowers are:0.5
+are beautiful:1
+you flowers:0.5
+give you:1
+beautiful </s>:1
+to give:1
+flowers </s>:0.5
+i love:0.5
+i want:0.5
+and i:1
+love you:1
+want to:1
+<s> i:0.5
+you very:0.5
+much and:1
+<s> flowers:0.5
+very much:1

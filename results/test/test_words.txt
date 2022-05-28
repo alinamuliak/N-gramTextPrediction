@@ -1,17 +1,17 @@
-flowers are beautiful:</s>
-<s> flowers are:beautiful
-<s> <s> flowers:are
-<s> <s> <s>:flowers
-give you flowers:</s>
-want to give:you
-to give you:flowers
-i want to:give
-and i want:to
-much and i:want
-you very much:and
-<s> i love:you
-very much and:i
-i love you:very
-love you very:much
-<s> <s> i:love
-<s> <s> <s>:i
+flowers:are
+are:beautiful
+you:flowers
+give:you
+beautiful:</s>
+to:give
+flowers:</s>
+i:love
+i:want
+and:i
+love:you
+want:to
+<s>:i
+you:very
+much:and
+<s>:flowers
+very:much
