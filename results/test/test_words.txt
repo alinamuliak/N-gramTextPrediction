@@ -1,17 +1,21 @@
-flowers:are
-are:beautiful
-you:flowers
-give:you
-beautiful:</s>
-to:give
-flowers:</s>
-i:love
-i:want
-and:i
-love:you
-want:to
-<s>:i
-you:very
-much:and
-<s>:flowers
-very:much
+you flowers:flowers
+give you:flowers
+much and:i
+very much:and
+and i:want
+flowers flowers:are
+i love:them
+cool i:love
+love them:</s>
+are cool:i
+flowers are:cool
+<s> <s>:i
+love you:very
+to give:you
+<s> i:love
+you very:much
+i love:you
+i want:to
+want to:give
+you flowers:</s>
+are cool:</s>

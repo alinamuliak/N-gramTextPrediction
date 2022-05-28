@@ -203,12 +203,6 @@ int main(int argc, char *argv[]) {
             prob_map = file_to_probabilities_map(parsed_cfg.out_prob);
             next_words_map = file_to_next_words_map(parsed_cfg.out_ngram);
             // читаємо весь файл і сплітимо по \n
-//            std::ifstream out_prob(parsed_cfg.out_prob);
-//            auto probabilities = std::ostringstream(
-//                    std::ostringstream{} << out_prob.rdbuf()).str();
-//            std::ifstream out_ngram(parsed_cfg.out_ngram);
-//            auto ngram = std::ostringstream(
-//                    std::ostringstream{} << out_ngram.rdbuf()).str();
 
             std::ifstream out_prob(parsed_cfg.out_prob, std::ios::binary);
             std::ostringstream buffer_ss;

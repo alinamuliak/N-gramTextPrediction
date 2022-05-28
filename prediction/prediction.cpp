@@ -73,9 +73,7 @@ std::unordered_map<std::string, std::vector<std::string>> file_to_next_words_map
     while (std::getline(infile, line)) {
         std::vector<std::string> result;
         boost::algorithm::split(result, line, boost::is_any_of(":"));
-//        if (std::count(words_map[result[0]].begin(), words_map[result[0]].end(), result[1]) == 0) {
         words_map[result[0]].emplace_back(result[1]);
-//        }
     }
     return words_map;
 }
@@ -85,6 +83,7 @@ std::vector<std::string> predict_next_word(const std::string &phrase, std::unord
                                            std::unordered_map<std::string, std::vector<std::string>> &next_words_map,
                                            size_t words_n) {
     auto normalized_phrase = boost::locale::fold_case(boost::locale::normalize(phrase));
+
     std::vector<std::string> predicted_words;
     if (contains(next_words_map, normalized_phrase)) {
         std::vector<double> words_probability(words_n);
