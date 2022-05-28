@@ -67,6 +67,9 @@ find_package(Boost 1.71.0 COMPONENTS program_options system REQUIRED COMPONENTS 
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} Boost::program_options Boost::system Boost::locale)
 
+find_package(TBB REQUIRED)
+target_link_libraries(${PROJECT_NAME} TBB::tbb)
+
 find_package(Threads REQUIRED)
 target_link_libraries(${PROJECT_NAME} Threads::Threads)
 
