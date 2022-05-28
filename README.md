@@ -99,8 +99,8 @@ allowed_ext = .txt .zip                 # extensions to index (supported only .z
 - [x] Implement sequential training algorithm
 - [x] Implement sequential prediction algorithm
 - [x] Implement parallel training
-- [ ] Implement parallel processing for prediction
-- [ ] Add processing of unknown words
+- [x] Implement parallel processing for prediction
+- [x] Add processing of unknown words
 - [ ] Build comparing plots for different settings
 
 # Contributors:
