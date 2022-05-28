@@ -54,6 +54,7 @@ The main steps of the prediction are as follows:
 ### Prerequisites
 - `CMake`
 - `boost`
+- `tbb`
 
 ### `.cfg` file settings
 ```
