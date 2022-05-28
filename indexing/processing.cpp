@@ -176,7 +176,7 @@ std::unordered_map<std::string, int> file_to_dictionary(const std::string &fileN
 
     std::string str;
     while (in >> str) {
-        if (str.size() > 0) {
+        if (!str.empty()) {
             dict_eng.insert({str, 1});
         }
     }

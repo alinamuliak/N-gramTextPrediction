@@ -24,7 +24,6 @@ std::unordered_map<std::string, double> file_to_probabilities_map(const std::str
 
     std::string line;
     while (std::getline(infile, line)) {
-        std::cout << line << std::endl;
         std::vector<std::string> result;
         boost::algorithm::split(result, line, boost::is_any_of(":"));
         probabilities_map[result[0]] = std::stod(result[1]);
@@ -51,7 +50,6 @@ void string_to_next_words_map_parallel(tbb::concurrent_hash_map<std::string, std
                                        std::vector<std::string> &words_split,
                                        size_t thread_num, size_t lines_per_thread) {
     auto from = thread_num * lines_per_thread;
-    std::cout << "die" << std::endl;
     auto to = (thread_num + 1) * lines_per_thread;
     std::unordered_map<std::string, std::vector<std::string>> m;
     for (size_t i = from; i < to; ++i) {
@@ -87,7 +85,6 @@ std::vector<std::string> predict_next_word(const std::string &phrase, std::unord
 
     std::vector<std::string> predicted_words;
 
-    std::cout << normalized_phrase << std::endl;
 
     if (contains(next_words_map, normalized_phrase)) {
         std::vector<double> words_probability(words_n);

@@ -89,7 +89,6 @@ int main(int argc, char *argv[]) {
     }
 
     std::unordered_map<std::string, int> dict_eng = file_to_dictionary(parsed_cfg.dictionary);
-//    cout << dict_eng.size() << endl;
 
 
     //    ------------------- MAIN PART --------------------
