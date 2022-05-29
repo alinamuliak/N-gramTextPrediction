@@ -1,6 +1,23 @@
 # N-gram Text Prediction
 
 ## About the project
+<table>
+ <tr>
+    <td>The aim of the project is to develop an application
+for extracting N-grams from the text, which can work with unlimited text size
+and quickly and efficiently use available resources.
+</td>
+    <td><pre><code>
+            /\-/\           
+        /) = ^I^ =
+       ((_ /'-^-'\ _ 
+        `\`\ \ / /`/           
+          (_\_|_/_)
+           """ """</code></pre></td>
+ </tr>
+</table>
+
+## About the project
 The aim of the project is to develop an application
 for extracting N-grams from the text, which can work with unlimited text size
 and quickly and efficiently use available resources.
