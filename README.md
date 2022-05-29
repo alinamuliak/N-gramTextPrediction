@@ -112,6 +112,10 @@ allowed_ext = .txt .zip                 # extensions to index (supported only .z
 ### Example
 ![screen-shot-example]()
 
+## Results
+Comparing plots of different settings for **indexing**.
+
+![index threads comparing plot](img/index_plot.svg)
 
 ## Roadmap
 - [x] Implement sequential training algorithm
