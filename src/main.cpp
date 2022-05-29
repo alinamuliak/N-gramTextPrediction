@@ -94,6 +94,9 @@ int main(int argc, char *argv[]) {
     ////    ------------------- MAIN PART --------------------
 
     if (parsed_cfg.option == 0) {
+        std::string greetings = "              /\\-/\\\n          /) = ^I^ =                Welcome to N-Gram Text Prediction\n         ((_ /'-^-'\\ _\n          `\\`\\ \\ / /`/                  You're in training mode.\n            (_\\_|_/_)\n             \"\"\" \"\"\"\n";
+        cout << greetings << endl;
+
         safe_que<path> files_que(parsed_cfg.files_queue_s);
         safe_que<string> string_que(parsed_cfg.strings_queue_s);
         safe_que<unordered_map<string, int>> merge_q_n(parsed_cfg.merge_queue_s, true);
@@ -194,12 +197,16 @@ int main(int argc, char *argv[]) {
         auto write_time = get_current_time_fenced() - write_time_start;
 
         cout << "Done! <3" << endl;
-        cout << "Total time taken: " << to_us(full_time) << endl;
-        cout << "\t  Read:   " << to_us(read_time) << endl;
-        cout << "\t  Find:   " << to_us(find_time) << endl;
-        cout << "\t  Write:  " << to_us(write_time) << endl;
+        cout << "+++++++++++++++++++++++++++++" << endl;
+        cout << "+ Total time taken: " << to_us(full_time) << endl;
+        cout << "+ \t  Read:   " << to_us(read_time) << endl;
+        cout << "+ \t  Find:   " << to_us(find_time) << endl;
+        cout << "+ \t  Write:  " << to_us(write_time) << endl;
+        cout << "+++++++++++++++++++++++++++++" << endl;
 
     } else if (parsed_cfg.option == 1) {
+        std::string greetings = "              /\\-/\\\n          /) = ^I^ =                Welcome to N-Gram Text Prediction\n         ((_ /'-^-'\\ _\n          `\\`\\ \\ / /`/                You're in prediction mode.\n            (_\\_|_/_)\n             \"\"\" \"\"\"\n";
+        cout << greetings << endl;
 
         cout << "Hold on... Preparing text..." << endl;
         std::unordered_map<std::string, double> prob_map;
@@ -233,8 +240,8 @@ int main(int argc, char *argv[]) {
             size_t lines_per_thread = std::floor(n / parsed_cfg.pred_threads);
 
             // GLOBAL MAP
-            tbb::concurrent_hash_map<std::string, std::vector<std::string>> words_maps;
-            tbb::concurrent_hash_map<std::string, double> probability_maps;
+            oneapi::tbb::concurrent_hash_map<std::string, std::vector<std::string>> words_maps;
+            oneapi::tbb::concurrent_hash_map<std::string, double> probability_maps;
 
 
             std::vector<std::thread> processing_flows(parsed_cfg.pred_threads);
@@ -258,7 +265,11 @@ int main(int argc, char *argv[]) {
         }
 
         auto prediction_time = get_current_time_fenced() - prediction_time_start;
+        
+        cout << "+++++++++++++++++++++++++++++" << endl;
         cout << "Processing time: " << to_us(prediction_time) << endl;
+        cout << "+++++++++++++++++++++++++++++" << endl;
+        cout << "\nPrediction:" << endl;
 
         std::string end_punctuation = ".!?";
         std::string continue_punctuation = ",:;\"'";
