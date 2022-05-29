@@ -77,16 +77,16 @@ The main steps of the prediction are as follows:
 ```
 indir = "../data"                       # source directory for files
 
-ngram_par = 3                           # parameter n
+ngram_par = 3                           # parameter n > 1
 option = 0                              # 0 for counting and 1 for word prediction
-word_num = 3                            # number of words to predict
+word_num = 3                            # number of words to predict > 0
 
 out_prob = "../results/out_prob.txt"    # file to save result probabilities
 out_ngram = "../results/out_words.txt"  # file to save result n-gram and following words
 
-index_threads = 2                       # threads used for indexing
-merge_threads = 2                       # threads used for merging
-prediction_threads = 4                  # threads for prediction
+index_threads = 2                       # threads used for indexing >= 1
+merge_threads = 2                       # threads used for merging >= 1
+prediction_threads = 4                  # threads for prediction >= 1
 
 files_queue_s = 1000000                 # amount of max file paths in files_queue
 strings_queue_s = 1000000000            # max size of queue of strings in bytes
