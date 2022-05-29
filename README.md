@@ -110,7 +110,7 @@ allowed_ext = .txt .zip                 # extensions to index (supported only .z
      - after the preprocessing for prediction is done, the input from user will be requested
 
 ### Example
-![screen-shot-example]()
+![screen-shot-example](img/screen-shot-example.png)
 
 ## Results
 Comparing plots of different settings for **indexing**.
