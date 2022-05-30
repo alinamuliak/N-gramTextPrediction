@@ -274,10 +274,8 @@ int main(int argc, char *argv[]) {
 
                 if (last_n_inputs[last_n_inputs.size() - 2] != "<s>") {
                     std::fill(last_n_inputs.begin(), last_n_inputs.end() - 1, "<s>");
-                } else {
-
                 }
-                continue;
+                cout << "no following words for this one" << endl;
             }
 
             for (const auto &el: predicted_words) {
