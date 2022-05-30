@@ -17,15 +17,6 @@ and quickly and efficiently use available resources.
  </tr>
 </table>
 
-## About the project
-The aim of the project is to develop an application
-for extracting N-grams from the text, which can work with unlimited text size
-and quickly and efficiently use available resources.
-
-The application works in two modes: **training** and **prediction**.
-The user sets the set of texts for learning, and also selects certain settings
-of the analysis (1-gram, 2-gram, 3-gram, parallelization settings). After the training is completed,
-user can enter the prediction mode and test it.
 
 ## Description of the algorithm
 The foundation of the algorithm is a language model,
