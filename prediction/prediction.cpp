@@ -26,7 +26,7 @@ std::unordered_map<std::string, double> file_to_probabilities_map(const std::str
     while (std::getline(infile, line)) {
         std::vector<std::string> result;
         boost::algorithm::split(result, line, boost::is_any_of(":"));
-        probabilities_map[result[0]] = std::stod(result[1]);
+        probabilities_map[result[0]] = std::stod(result[result.size()-1]);
     }
     return probabilities_map;
 }
@@ -41,7 +41,7 @@ void string_to_probabilities_map_parallel(oneapi::tbb::concurrent_hash_map<std::
         oneapi::tbb::concurrent_hash_map<std::string, double>::accessor a;
         if (line.size() != 1) {
             probabilities_map.insert(a, line[0].data());
-            a->second = std::stod(line[1].data());
+            a->second = std::stod(line[line.size()-1].data());
         }
     }
 }
@@ -60,8 +60,7 @@ void string_to_next_words_map_parallel(oneapi::tbb::concurrent_hash_map<std::str
 
         m[line[0]].emplace_back(line[1]);
         words_map.insert(a, line[0].data());
-
-        a->second.emplace_back(line[1].data());
+        a->second.emplace_back(line[line.size()-1].data());
     }
 }
 
@@ -78,6 +77,7 @@ std::unordered_map<std::string, std::vector<std::string>> file_to_next_words_map
 }
 
 
+
 std::vector<std::string> predict_next_word(const std::string &phrase, std::unordered_map<std::string, double> &prob_map,
                                            std::unordered_map<std::string, std::vector<std::string>> &next_words_map,
                                            size_t words_n) {
@@ -88,13 +88,15 @@ std::vector<std::string> predict_next_word(const std::string &phrase, std::unord
 
     if (contains(next_words_map, normalized_phrase)) {
         std::vector<double> words_probability(words_n);
+
         for (const auto &str: next_words_map[normalized_phrase]) {
-            std::string current_str = normalized_phrase.append(" ").append(str);
+            std::string current_str = normalized_phrase;
+            current_str.append(" ").append(str);
 
             if (predicted_words.size() >= words_n) {
                 double min_prob = *min_element(words_probability.begin(), words_probability.end());
 
-                if (prob_map[current_str] > min_prob) {
+                if (prob_map[current_str] > 0) {
                     auto index_of_min = std::find(words_probability.begin(), words_probability.end(), min_prob) -
                                         words_probability.begin();
                     words_probability[index_of_min] = prob_map[current_str];

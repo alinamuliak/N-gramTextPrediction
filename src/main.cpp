@@ -102,6 +102,9 @@ int main(int argc, char *argv[]) {
         safe_que<unordered_map<string, int>> merge_q_n(parsed_cfg.merge_queue_s, true);
         safe_que<unordered_map<string, int>> merge_q_n_1(parsed_cfg.merge_queue_s, true);
 
+        tbb::concurrent_hash_map<string, int> g_map_n;
+        tbb::concurrent_hash_map<string, int> g_map_n_1;
+
 
         // pills
         path empty_p;
@@ -118,19 +121,11 @@ int main(int argc, char *argv[]) {
         auto find_time = get_current_time_fenced() - find_time_start;
 
         std::vector<std::thread> main_flows(parsed_cfg.index_threads);
-        std::vector<std::thread> merge_flows(parsed_cfg.merge_threads * 2);
 
 
         for (int i = 0; i < parsed_cfg.index_threads; ++i) {
-            main_flows.emplace_back(index_string, ref(string_que), ref(merge_q_n), ref(merge_q_n_1), ref(dict_eng),
+            main_flows.emplace_back(index_string, ref(string_que), ref(g_map_n), ref(g_map_n_1), ref(dict_eng),
                                     std::ref(parsed_cfg.extensions), parsed_cfg.ngram_par);
-        }
-        for (int i = 0; i < parsed_cfg.merge_threads; ++i) {
-            merge_flows.emplace_back(parallel_merge_maps, ref(merge_q_n));
-        }
-
-        for (int i = 0; i < parsed_cfg.merge_threads; ++i) {
-            merge_flows.emplace_back(parallel_merge_maps, ref(merge_q_n_1));
         }
 
         auto read_time_start = get_current_time_fenced();
@@ -169,18 +164,8 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        merge_q_n.push_end(unordered_map<string, int>{}, 1, "poison_pill");
-        merge_q_n_1.push_end(unordered_map<string, int>{}, 1, "poison_pill");
-
-        for (auto &t: merge_flows) {
-            if (t.joinable()) {
-                t.join();
-            }
-        }
-
-        auto f_map_n = merge_q_n.pop().first;
-        auto f_map_n_1 = merge_q_n_1.pop().first;
-
+        unordered_map<string, int> f_map_n(g_map_n.begin(), g_map_n.end());
+        unordered_map<string, int> f_map_n_1(g_map_n_1.begin(), g_map_n_1.end());
 
         auto full_time = get_current_time_fenced() - full_time_start;
 

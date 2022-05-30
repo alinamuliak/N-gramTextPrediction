@@ -27,6 +27,22 @@ void count_probabilities(unordered_map<string, double> &prob_map, const unordere
     }
 }
 
+void make_ngrams(tbb::concurrent_hash_map<string, int> &map, std::vector<string> &w, int n) {
+    for (size_t i = 0; i <= w.size() - n; i++) {
+        string phrase;
+        for (int j = 0; j < n; j++) {
+            phrase += w[i + j];
+            if (j != n - 1) {
+                phrase += " ";
+            }
+        }
+        tbb::concurrent_hash_map<string, int>::accessor a;
+        map.insert(a, phrase);
+        a->second++;
+        a.release();
+    }
+}
+
 void make_ngrams(unordered_map<string, int> &ph_map, std::vector<string> &w, int n) {
     for (size_t i = 0; i <= w.size() - n; i++) {
         string phrase;
@@ -40,10 +56,10 @@ void make_ngrams(unordered_map<string, int> &ph_map, std::vector<string> &w, int
     }
 }
 
-void count_ngrams(unordered_map<string, int> &phrase_map_n,
-                  unordered_map<string, int> &phrase_map_n_1,
+void count_ngrams(tbb::concurrent_hash_map<string, int> &g_map_n,
+                  tbb::concurrent_hash_map<string, int> &g_map_n_1,
                   const string &line, std::unordered_map<std::string,
-                  int> dict_eng, int n) {
+        int> dict_eng, int n) {
     using boost::locale::boundary::ssegment_index;
     string start = "<s>";
     string end = "</s>";
@@ -84,41 +100,14 @@ void count_ngrams(unordered_map<string, int> &phrase_map_n,
                 }
             }
 
-            make_ngrams(phrase_map_n, words, n);
-            make_ngrams(phrase_map_n_1, words, n - 1);
+            make_ngrams(g_map_n, words, n);
+            make_ngrams(g_map_n_1, words, n - 1);
         }
-    }
-
-}
-
-
-void parallel_merge_maps(safe_que<unordered_map<string, int>> &mer_q) {
-    for (;;) {
-        auto pair1 = mer_q.pop();
-        if (pair1.second == "poison_pill") {
-            mer_q.push_end(unordered_map<string, int>{}, 1, "poison_pill");
-            break;
-        }
-        auto pair2 = mer_q.pop();
-        if (pair2.second == "poison_pill") {
-            mer_q.push_start(pair1.first, 1, pair1.second);
-            mer_q.push_end(unordered_map<string, int>{}, 1, "poison_pill");
-            break;
-        }
-        auto map1 = pair1.first;
-        auto map2 = pair2.first;
-        if (map2.size() > map1.size()) {
-            std::swap(map2, map1);
-        }
-        for (const auto &element: map2) {
-            map1[element.first] += element.second;
-        }
-        mer_q.push_start(std::move(map1), 1, "map_m");
     }
 }
 
-void index_string(safe_que<string> &queue, safe_que<unordered_map<string, int>> &merge_q_n,
-                  safe_que<unordered_map<string, int>> &merge_q_n_1,
+void index_string(safe_que<string> &queue, tbb::concurrent_hash_map<string, int> &g_map_n,
+                  tbb::concurrent_hash_map<string, int> &g_map_n_1,
                   const std::unordered_map<std::string, int> &dict_eng, const string &ext, int n) {
     auto buff = static_cast<char *>(::operator new(11000000));
 
@@ -154,7 +143,7 @@ void index_string(safe_que<string> &queue, safe_que<unordered_map<string, int>> 
                     auto size = archive_entry_size(entry);
                     archive_read_data(a, buff, size);
                     buff[size] = '\0';
-                    count_ngrams(local_map_n, local_map_n_1, buff, dict_eng, n);
+                    count_ngrams(g_map_n, g_map_n_1, buff, dict_eng, n);
                 }
             }
             err_code = archive_read_free(a);
@@ -162,10 +151,8 @@ void index_string(safe_que<string> &queue, safe_que<unordered_map<string, int>> 
                 continue;
             }
         } else if (element.second == ".txt" && ext.find(".txt") != string::npos) {
-            count_ngrams(local_map_n, local_map_n_1, line, dict_eng, n);
+            count_ngrams(g_map_n, g_map_n_1, line, dict_eng, n);
         }
-        merge_q_n.push_start(std::move(local_map_n), 1, "map");
-        merge_q_n_1.push_start(std::move(local_map_n_1), 1, "map");
     }
     ::operator delete(buff);
 }
