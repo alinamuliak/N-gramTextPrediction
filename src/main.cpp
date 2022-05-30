@@ -266,7 +266,7 @@ int main(int argc, char *argv[]) {
         std::string current_input = join(last_n_inputs);
 
         // для закінчення вводу - ///
-        while (current_input != "///") {
+        while (true) {
             auto predicted_words = predict_next_word(join(last_n_inputs), prob_map, next_words_map,
                                                      parsed_cfg.word_num);
 
@@ -288,10 +288,8 @@ int main(int argc, char *argv[]) {
             cout << "->\t";
             cin >> current_input;
             boost::trim(current_input);
-
-
-            if (dict_eng.find(current_input) == dict_eng.end()) {
-                current_input = "<unk>";
+            if (current_input == "///") {
+                break;
             }
 
             if (end_punctuation.find(current_input) != std::string::npos) {
@@ -301,6 +299,10 @@ int main(int argc, char *argv[]) {
                 continue;
             } else if (continue_punctuation.find(current_input) != std::string::npos) {
                 continue;
+            }
+
+            if (dict_eng.find(current_input) == dict_eng.end()) {
+                current_input = "<unk>";
             }
             last_n_inputs.emplace_back(current_input);
         }
