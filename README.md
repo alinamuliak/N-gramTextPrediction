@@ -117,6 +117,9 @@ Comparing plots of different settings for **indexing**.
 
 ![index threads comparing plot](img/index_plot.svg) 
 
+Comparing plots for different settings for **prediction**.
+![prediction threads comparing plot](img/pred_threads.png)
+
 ## Roadmap
 - [x] Implement sequential training algorithm
 - [x] Implement sequential prediction algorithm
