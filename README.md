@@ -123,7 +123,7 @@ Comparing plots of different settings for **indexing**.
 - [x] Implement parallel training
 - [x] Implement parallel processing for prediction
 - [x] Add processing of unknown words
-- [ ] Build comparing plots for different settings
+- [x] Build comparing plots for different settings
 
 # Contributors:
 - [Alina Muliak](https://github.com/alinamuliak)
